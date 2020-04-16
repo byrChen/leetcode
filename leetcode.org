@@ -1,4 +1,4 @@
-#+TAGS: SIMPLE(s) MEDIUM(m) HARD(h) TOBEORG(t) UNRESOLVED(u)
+#+TAGS: SIMPLE(s) MEDIUM(m) HARD(h) TOBEORG(t) UNRESOLVED(u) QUESTIONS(q)
 * 1 两数之和                                                           :数组:
 ** 暴力解法
    #+begin_src java :classname 
@@ -648,7 +648,7 @@
 
          private boolean canJumpHelper(int[] nums, int pos, int end) {
              if (pos == end) return true;
-             for (int i = i; i <= nums[pos]; i++) {
+             for (int i = 1; i <= nums[pos]; i++) {
                  if (pos+i > end) return false;
                  if (canJumpHelper(nums, pos+i, end)) return true;
              }
@@ -851,7 +851,7 @@
      }
    #+end_src 
 ** 字典排序(二进制排序)                                          :UNRESOLVED:
-* 79 单词搜索                                   :DFS:回溯:递归:二维数组:数组:
+* 79 单词搜索 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink20>>][offer12]]                             :DFS:回溯:递归:二维数组:数组:
   #+begin_src java :classname 
     class Solution {
         public boolean exist(char[][] board, String word) {
@@ -999,7 +999,6 @@
         }
     }
   #+end_src 
-
 * 104 二叉树的最大深度 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink13>>][offer55]]                               :递归:二叉树:树:
   #+begin_src java :classname 
     class Solution {
@@ -1064,13 +1063,110 @@
          }
      }
    #+end_src 
-* 114 二叉树展开为链表
-  #+begin_src java :classname 
-    class Solution {
-        public void flatten(TreeNode root) {
-        }
-    }
-  #+end_src 
+* 114 二叉树展开为链表 :DFS:递归:对称后序遍历:中序遍历:后序遍历:链表:二叉树:树:
+** 迭代
+   #+begin_src java :classname 
+     class Solution {
+         public void flatten(TreeNode root) {
+             while (root != null) {
+                 if (root.left != null) {
+                     TreeNode tail = root.left;
+                     while (tail.right != null) tail = tail.right;
+                     tail.right = root.right;
+                     root.right = root.left;
+                     root.left = null;
+                 }
+                 root = root.right;
+             }
+         }
+     }
+   #+end_src 
+** 递归
+   - 对称后序
+     #+begin_src java :classname 
+       class Solution {
+           private TreeNode head = null;
+           public void flatten(TreeNode root) {
+               if (root == null) return;
+               flatten(root.right);
+               flatten(root.left);
+               root.right = head;
+               root.left = null;
+               head = root;
+           }
+       }
+     #+end_src
+   - 中序
+     #+begin_src java :classname 
+       class Solution {
+           public void flatten(TreeNode root) {
+               if (root == null) return;
+               flatten(root.left);
+               TreeNode tmp = root.right;
+               root.right = root.left;
+               root.left = null;
+               while (root.right != null) root = root.right;
+               root.right = tmp;
+               flatten(tmp);
+           }
+       }
+     #+end_src
+   - 后序
+     #+begin_src java :classname 
+       class Solution {
+           public void flatten(TreeNode root) {
+               if (root == null) return;
+               flatten(root.left);
+               flatten(root.right);
+               TreeNode tmp = root.right;
+               root.right = root.left;
+               root.left = null;
+               while (root.right != null) root = root.right;
+               root.right = tmp;
+           }
+       }
+     #+end_src
+*** Question:                                                     :QUESTIONS:
+    - [ ] 前序遍历递归实现？类比对称后序记录左子树尾节点的递归实现？
+** 关于树的DFS(前中后)遍历的迭代实现
+   - 前序
+     #+begin_src java :classname 
+       Stack<TreeNode> stack = new Stack<>();
+       stack.push(root);
+       while (!stack.empty()) {
+           TreeNode n = stack.pop();
+           if (n.right != null) stack.push(n.right);
+           if (n.left != null) stack.push(n.left);
+       }
+     #+end_src 
+   - 中序
+     #+begin_src java :classname 
+       Stack<TreeNode> stack = new Stack<>();
+       TreeNode cur = root;
+       while (!stack.empty() || cur != null) {
+           if (cur != null) {
+               stack.push(cur);
+               cur = cur.left;
+           } else {
+               cur = stack.pop();
+               cur = cur.right;
+           }
+       }
+     #+end_src 
+   - 后序
+     #+begin_src java :classname 
+       Stack<TreeNode> stack1 = new Stack<>();
+       Stack<TreeNode> stack2 = new Stack<>();
+       stack1.push(root);
+       while (!stack1.empty()) {
+           TreeNode n = stack1.pop();
+           stack2.push(n);
+           if (n.left != null) stack1.push(n.left);
+           if (n.right != null) stack1.push(n.right);
+       }
+
+       while (!stack2.empty()) stack2.pop();
+     #+end_src 
 * 121 买卖股票的最佳时机                                               :数组:
   #+begin_src java :classname 
     class Solution {
@@ -1111,14 +1207,46 @@
         }
     }
   #+end_src 
-* 139 单词拆分
-  #+begin_src java :classname 
-    class Solution {
-        public boolean wordBreak(String s, List<String> wordDict) {
+* 139 单词拆分                                          :DP:回溯:递归:字符串:
+** 回溯(记忆剪枝)
+   #+begin_src java :classname 
+     class Solution {
+         public boolean wordBreak(String s, List<String> wordDict) {
+             return Helper(s, new HashSet<>(wordDict), 0, new Boolean[s.length()]);
+         }
 
-        }
-    }
-  #+end_src 
+         private boolean Helper(String s, Set<String> set, int start, Boolean[] memo) {
+             if (start == s.length()) return true;
+
+             if (memo[start] != null) return memo[start];
+
+             for (int i = start+1; i <= s.length(); i++) {
+                 if (set.contains(s.substring(start, i)) && Helper(s, set, i, memo)) return memo[start] = true;
+             }
+             return memo[start] = false;
+         }
+     }
+   #+end_src 
+** DP
+   #+begin_src java :classname 
+     class Solution {
+         public boolean wordBreak(String s, List<String> wordDict) {
+             Set<String> set = new HashSet<>(wordDict);
+             boolean[] word = new boolean[s.length()+1];
+             word[0] = true;
+             for (int i = 1; i <= s.length(); i++) {
+                 for (int j = 0; j < i; j++) {
+                     if (word[j] && set.contains(s.substring(j, i))) {
+                         word[i] = true;
+                         break;
+                     }
+                 }
+             }
+             return word[s.length()];
+         }
+     }
+   #+end_src 
+** BFS                                                           :UNRESOLVED:
 * 141 环形链表                                         :快慢指针:双指针:链表:
   #+begin_src java :classname 
     public class Solution {
@@ -1134,14 +1262,641 @@
         }
     }
   #+end_src 
-* 142 环形链表 2
+* 142 环形链表 2 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink15>>][offer23]]                               :快慢指针:双指针:链表:
   #+begin_src java :classname 
     public class Solution {
         public ListNode detectCycle(ListNode head) {
+            ListNode n1 = head, n2 = head;
+            while (true) {
+                if (n1 == null || n2 == null || n2.next == null) return null;
+                n1 = n1.next;
+                n2 = n2.next.next;
+                if (n1 == n2) break;
+            }
+            int len = 0;
+            while (true) {
+                n1 = n1.next;
+                len += 1;
+                if (n1 == n2) {
+                    n1 = n2 = head;
+                    break;
+                }
+            }
+            for (int i = 0; i < len; i++) n2 = n2.next;
+            while (n1 != n2) {
+                n1 = n1.next;
+                n2 = n2.next;
+            }
+            return n1;
+        }
+    }
+  #+end_src 
+* 146 LRU缓存机制                                                       :LRU:
+** LinkedHashMap
+   #+begin_src java :classname 
+     class LRUCache extends LinkedHashMap<Integer, Integer>{
+         private int capacity;
+    
+         public LRUCache(int capacity) {
+             super(capacity, 0.75F, true);
+             this.capacity = capacity;
+         }
+
+         public int get(int key) {
+             return super.getOrDefault(key, -1);
+         }
+
+         public void put(int key, int value) {
+             super.put(key, value);
+         }
+
+         @Override
+         protected boolean removeEldestEntry(Map.Entry<Integer, Integer> eldest) {
+             return size() > capacity; 
+         }
+     }
+   #+end_src 
+** Hashtable+链表                                                :UNRESOLVED:
+   #+begin_src java :classname 
+     import java.util.Hashtable;
+     public class LRUCache {
+
+       class DLinkedNode {
+         int key;
+         int value;
+         DLinkedNode prev;
+         DLinkedNode next;
+       }
+
+       private void addNode(DLinkedNode node) {
+         /**
+          ,* Always add the new node right after head.
+          ,*/
+         node.prev = head;
+         node.next = head.next;
+
+         head.next.prev = node;
+         head.next = node;
+       }
+
+       private void removeNode(DLinkedNode node){
+         /**
+          ,* Remove an existing node from the linked list.
+          ,*/
+         DLinkedNode prev = node.prev;
+         DLinkedNode next = node.next;
+
+         prev.next = next;
+         next.prev = prev;
+       }
+
+       private void moveToHead(DLinkedNode node){
+         /**
+          ,* Move certain node in between to the head.
+          ,*/
+         removeNode(node);
+         addNode(node);
+       }
+
+       private DLinkedNode popTail() {
+         /**
+          ,* Pop the current tail.
+          ,*/
+         DLinkedNode res = tail.prev;
+         removeNode(res);
+         return res;
+       }
+
+       private Hashtable<Integer, DLinkedNode> cache =
+               new Hashtable<Integer, DLinkedNode>();
+       private int size;
+       private int capacity;
+       private DLinkedNode head, tail;
+
+       public LRUCache(int capacity) {
+         this.size = 0;
+         this.capacity = capacity;
+
+         head = new DLinkedNode();
+         // head.prev = null;
+
+         tail = new DLinkedNode();
+         // tail.next = null;
+
+         head.next = tail;
+         tail.prev = head;
+       }
+
+       public int get(int key) {
+         DLinkedNode node = cache.get(key);
+         if (node == null) return -1;
+
+         // move the accessed node to the head;
+         moveToHead(node);
+
+         return node.value;
+       }
+
+       public void put(int key, int value) {
+         DLinkedNode node = cache.get(key);
+
+         if(node == null) {
+           DLinkedNode newNode = new DLinkedNode();
+           newNode.key = key;
+           newNode.value = value;
+
+           cache.put(key, newNode);
+           addNode(newNode);
+
+           ++size;
+
+           if(size > capacity) {
+             // pop the tail
+             DLinkedNode tail = popTail();
+             cache.remove(tail.key);
+             --size;
+           }
+         } else {
+           // update the value.
+           node.value = value;
+           moveToHead(node);
+         }
+       }
+     }
+
+     /**
+      ,* LRUCache 对象会以如下语句构造和调用:
+      ,* LRUCache obj = new LRUCache(capacity);
+      ,* int param_1 = obj.get(key);
+      ,* obj.put(key,value);
+      ,*/
+   #+end_src 
+* 148 排序链表                             :递归:快速排序:归并排序:排序:链表:
+** 归并排序
+*** 递归(自顶而下)
+    #+begin_src java :classname 
+      class Solution {
+          public ListNode sortList(ListNode head) {
+              if (head == null) return null;
+              return mergeSortList(head);
+          }
+
+          private ListNode mergeSortList(ListNode head) {
+              if (head.next == null) return head;
+              ListNode p1 = head, p2 = head, prev = p1;
+              while (p2 != null && p2.next != null) {
+                  prev = p1;
+                  p1 = p1.next;
+                  p2 = p2.next.next;
+              }
+              prev.next = null;
+              return mergeSorted(mergeSortList(head), mergeSortList(p1));
+          }
+
+          private ListNode mergeSorted(ListNode p1, ListNode p2) {
+              ListNode p = new ListNode(0), cur = p;
+              while (p1 != null && p2 != null) {
+                  if (p1.val < p2.val) {
+                      cur.next = p1;
+                      p1 = p1.next;
+                  } else {
+                      cur.next = p2;
+                      p2 = p2.next;
+                  }
+                  cur = cur.next;
+              }
+              cur.next = p1 == null ? p2 : p1;
+              return p.next;
+          }
+      }
+    #+end_src 
+*** 迭代(自底向上)                                               :UNRESOLVED:
+    - 借用 ~Queue~ 
+      #+begin_src java :classname 
+        class Solution {
+            public ListNode sortList(ListNode head) {
+
+                //初始化
+                ListNode cur;
+                Deque<ListNode> queue = new LinkedList<>();
+                for( ; head != null; head = cur){
+                    cur = head.next; head.next = null; queue.offer(head);
+                }
+
+                //排序并循环添加
+                head = queue.poll();
+                while(!queue.isEmpty()){
+                    queue.offer(head); head = merge(queue.poll(),queue.poll());
+                }
+                return head;
+            }
+
+            //归并操作
+            ListNode merge(ListNode a, ListNode b){
+                ListNode c = new ListNode(0);
+                ListNode head = c;
+                while(a != null && b != null){
+                    if (a.val < b.val){
+                        c.next = a; c = a; a = a.next; 
+                    }else{
+                        c.next = b; c = b; b = b.next;
+                    }
+                }
+                c.next = (a == null) ? b : a;
+                return head.next;
+            }
+        }
+      #+end_src
+    - 不借用 ~Queue~
+      #+begin_src java :classname 
+        class Solution {
+            public ListNode sortList(ListNode head) {
+                if (head == null || head.next == null) {
+                    return head;
+                }
+                // 获取链表长度
+                int len = listNodeLength(head);
+
+                // 哨兵节点，也有叫傀儡节点（处理链表问题的一般技巧）
+                ListNode sentry = new ListNode(-1);
+                sentry.next = head;
+
+                // 循环 log n 次
+                for (int i = 1; i < len; i <<= 1) {
+                    ListNode prev = sentry;
+                    ListNode curr = sentry.next;
+                    // 循环 n 次
+                    while (curr != null) {
+                        ListNode left = curr;
+                        ListNode right = split(left, i);
+                        curr = split(right, i);
+                        prev.next = mergeTwoLists(left, right);
+
+                        while (prev.next != null) {
+                            prev = prev.next;
+                        }
+                    }
+                }
+
+                return sentry.next;
+            }
+
+            // 根据步长分隔链表
+            private ListNode split(ListNode head, int step) {
+                if (head == null) return null;
+
+                for (int i = 1; head.next != null && i < step; i++) {
+                    head = head.next;
+                }
+
+                ListNode right = head.next;
+                head.next = null;
+                return right;
+            }
+
+            // 获取链表的长度
+            private int listNodeLength(ListNode head) {
+                int length = 0;
+                ListNode curr = head;
+
+                while (curr != null) {
+                    length++;
+                    curr = curr.next;
+                }
+
+                return length;
+            }
+
+            // 合并两个有序链表
+            private ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+                ListNode sentry = new ListNode(-1);
+                ListNode curr = sentry;
+
+                while (l1 != null && l2 != null) {
+                    if (l1.val < l2.val) {
+                        curr.next = l1;
+                        l1 = l1.next;
+                    } else {
+                        curr.next = l2;
+                        l2 = l2.next;
+                    }
+
+                    curr = curr.next;
+                }
+
+                curr.next = l1 != null ? l1 : l2;
+                return sentry.next;
+            }
+        }
+      #+end_src 
+** 快排                                                          :UNRESOLVED:
+   #+begin_src java :classname 
+     class Solution {
+     public ListNode sortList(ListNode head) {
+             if(head==null||head.next==null) return head;
+             // 没有条件，创造条件。自己添加头节点，最后返回时去掉即可。
+             ListNode newHead=new ListNode(-1);
+             newHead.next=head;
+             return quickSort(newHead,null);
+         }
+         // 带头结点的链表快速排序
+         private ListNode quickSort(ListNode head,ListNode end){
+             if (head==end||head.next==end||head.next.next==end) return head;
+             // 将小于划分点的值存储在临时链表中
+             ListNode tmpHead=new ListNode(-1);
+             // partition为划分点，p为链表指针，tp为临时链表指针
+             ListNode partition=head.next,p=partition,tp=tmpHead;
+             // 将小于划分点的结点放到临时链表中
+             while (p.next!=end){
+                 if (p.next.val<partition.val){
+                     tp.next=p.next;
+                     tp=tp.next;
+                     p.next=p.next.next;
+                 }else {
+                     p=p.next;
+                 }
+             }
+             // 合并临时链表和原链表，将原链表接到临时链表后面即可
+             tp.next=head.next;
+             // 将临时链表插回原链表，注意是插回！（不做这一步在对右半部分处理时就断链了）
+             head.next=tmpHead.next;
+             quickSort(head,partition);
+             quickSort(partition,end);
+             // 题目要求不带头节点，返回结果时去除
+             return head.next;
+         }
+     }
+   #+end_src 
+* 152 乘积最大子数组                                                   :数组:
+  #+begin_src java :classname 
+    class Solution {
+        public int maxProduct(int[] nums) {
+            int max = Integer.MIN_VALUE, max1 = 1, max2 = 1, len = nums.length;
+            for (int i = 0; i < len; i++) {
+                max1 *= nums[i];
+                max2 *= nums[len-i-1];
+                int curMax = Math.max(max1, max2);
+                if (max < curMax) max = curMax;
+                if (nums[i] == 0) max1 = 1;
+                if (nums[len-i-1] == 0) max2 = 1;
+            }
+            return max;
+        }
+    }
+  #+end_src 
+* 155 最小栈                                                             :栈:
+  #+begin_src java :classname 
+    class MinStack {
+
+        private Stack<Integer> data;
+        private Stack<Integer> min;
+
+        /** initialize your data structure here. */
+        public MinStack() {
+            data = new Stack<>();
+            min = new Stack<>();
+        }
+
+        public void push(int x) {
+            data.push(x);
+            if (min.empty() || min.peek() >= x) min.push(x);
+        }
+
+        public void pop() {
+            if (!data.empty()) {
+                int x = data.pop();
+                if (x == min.peek()) min.pop();
+            }
+        }
+
+        public int top() {
+            return data.peek();
+        }
+
+        public int getMin() {
+            return min.peek();
+        }
+    }
+  #+end_src 
+* 160 相交链表 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink17>>][offer52]]                                                 :链表:
+  #+begin_src java :classname 
+    public class Solution {
+        public ListNode getIntersectionNode(ListNode headA, ListNode headB) {
+            int l1 = 0, l2 = 0;
+            ListNode p1 = headA, p2 = headB;
+            while (p1 != null) {
+                p1 = p1.next;
+                l1 += 1;
+            }
+            while (p2 != null) {
+                p2 = p2.next;
+                l2 += 1;
+            }
+            p1 = headA;
+            p2 = headB;
+            int l = l1 - l2;
+            if (l < 0) {
+                p1 = headB;
+                p2 = headA;
+                l = -l;
+            }
+            for (int i = 0; i < l; i++) p1 = p1.next;
+            while (p1 != p2) {
+                p1 = p1.next;
+                p2 = p2.next;
+            }
+            return p1;
+        }
+    }
+  #+end_src 
+* 169 多数元素 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink21>>][offer39]]                                                :数组:
+  #+begin_src java :classname 
+    class Solution {
+        public int majorityElement(int[] nums) {
+            int target = nums[0], n = 1;
+            for (int i = 1; i < nums.length; i++) {
+                if (n == 0) {
+                    target = nums[i];
+                    n = 1;
+                    continue;
+                }
+                if (nums[i] == target) n += 1;
+                else n -= 1;
+            }
+            return target;
+        }
+    }
+  #+end_src 
+* 198 打家劫舍                                                      :DP:数组:
+  #+begin_src java :classname 
+    class Solution {
+        public int rob(int[] nums) {
+            if (nums == null || nums.length <= 0) return 0;
+            int prevMax = 0, currMax = 0;
+            for (int x : nums) {
+                int temp = currMax;
+                currMax = Math.max(prevMax+x, currMax);
+                prevMax = temp;
+            }
+            return currMax;
+        }
+    }
+  #+end_src 
+* 200 岛屿数量                            :BFS:DFS:递归:并查集:二维数组:数组:
+** DFS
+   #+begin_src java :classname 
+     class Solution {
+         public int numIslands(char[][] grid) {
+             if (grid == null || grid.length <= 0 || grid[0].length <= 0) return 0;
+             int rn = grid.length, cn = grid[0].length, num = 0;
+             for (int i = 0; i < rn; i++) {
+                 for (int j = 0; j < cn; j++) {
+                     if (grid[i][j] == '1') {
+                         num += 1;
+                         dfs(grid, rn, cn, i, j);
+                     }
+                 }
+             }
+             return num;
+         }
+
+         private void dfs(char[][] grid, int rn, int cn, int r, int c) {
+             if (r < 0 || r >= rn || c < 0 || c >= cn) return;
+             if (grid[r][c] == '0') return;
+             grid[r][c] = '0';
+             dfs(grid, rn, cn, r-1, c);
+             dfs(grid, rn, cn, r+1, c);
+             dfs(grid, rn, cn, r, c-1);
+             dfs(grid, rn, cn, r, c+1);
+         }
+     }
+   #+end_src 
+** BFS                                                           :UNRESOLVED:
+   #+begin_src java :classname 
+     class Solution {
+         public int numIslands(char[][] grid) {
+             if (grid == null || grid.length <= 0 || grid[0].length <= 0) return 0;
+         }
+     }
+   #+end_src 
+** 并查集
+   #+begin_src java :classname 
+     class Solution {
+         class UnionFind {
+
+             int[] vertices;
+             int count;
+
+             public UnionFind(char[][] grid) {
+                 int rn = grid.length, cn = grid[0].length;
+                 vertices = new int[rn*cn];
+                 count = 0;
+                 for (int i = 0; i < rn; i++) {
+                     for (int j = 0; j < cn; j++) {
+                         if (grid[i][j] == '1') {
+                             count += 1;
+                             vertices[i*cn+j] = -1;
+                         }
+                     }
+                 }
+             }
+
+             public int sizeOf(int x) {
+                 return -vertices[find(x)];
+             }
+
+             public int parent(int x) {
+                 return vertices[x] < 0 ? x : vertices[x];
+             }
+
+             public boolean connected(int x, int y) {
+                 int rx = find(x), ry = find(y), px = parent(x), py = parent(y);
+
+                 while (px != rx) {
+                     vertices[x] = rx;
+                     x = px;
+                     px = parent(x);
+                 }
+
+                 while (py != ry) {
+                     vertices[y] = ry;
+                     y = py;
+                     py = parent(y);
+                 }
+
+                 return rx == ry;
+             }
+
+             public void union(int x, int y) {
+                 if (!connected(x, y)) {
+                     if (sizeOf(x) < sizeOf(y)) {
+                         vertices[find(y)] += vertices[find(x)];
+                         vertices[find(x)] = find(y);
+                     } else {
+                         vertices[find(x)] += vertices[find(y)];
+                         vertices[find(y)] = find(x);
+                     }
+                     count -= 1;
+                 }
+             }
+
+             public int find(int x) {
+                 int px = parent(x);
+                 return vertices[px] < 0 ? px : find(px);
+             }
+
+             public int[] getSet() {
+                 return vertices;
+             }
+
+             public int getCount() {
+                 return count;
+             }
+         }
+
+         public int numIslands(char[][] grid) {
+             if (grid == null || grid.length <= 0 || grid[0].length <= 0) return 0;
+             int rn = grid.length, cn = grid[0].length;
+             UnionFind uf = new UnionFind(grid);
+             for (int i = 0; i < rn; i++){
+                 for (int j = 0; j < cn; j++) {
+                     if (grid[i][j] == '1') {
+                         grid[i][j] = '0';
+                         if (i-1 >= 0 && grid[i-1][j] == '1') uf.union((i-1)*cn+j, i*cn+j);
+                         if (i+1 < rn && grid[i+1][j] == '1') uf.union((i+1)*cn+j, i*cn+j);
+                         if (j-1 >= 0 && grid[i][j-1] == '1') uf.union(i*cn+j-1, i*cn+j);
+                         if (j+1 < cn && grid[i][j+1] == '1') uf.union(i*cn+j+1, i*cn+j);
+                     }
+                 }
+             }
+             return uf.getCount();
+         }
+     }
+   #+end_src 
+* 206 反转链表 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink19>>][offer24]]                                            :递归:链表:
+  #+begin_src java :classname 
+    class Solution {
+        public ListNode reverseList(ListNode head) {
+            if (head == null || head.next == null) return head;
+            ListNode reverseHead = reverseList(head.next);
+            head.next.next = head;
+            head.next = null;
+            return reverseHead;
+        }
+    }
+  #+end_src 
+
+* 207 课程表
+  #+begin_src java :classname 
+    class Solution {
+        public boolean canFinish(int numCourses, int[][] prerequisites) {
 
         }
     }
   #+end_src 
+* 637 二叉树的层平均值                                    :SIMPLE:UNRESOLVED:
+*** DFS
+*** BFS
 * 803 打砖块                                                   :HARD:TOBEORG:
   #+begin_src java :classname 
     public class Solution {
@@ -1311,13 +2066,7 @@
         }
     }
   #+end_src 
-* 637 二叉树的层平均值                                    :SIMPLE:UNRESOLVED:
-*** DFS
-*** BFS
-
-
-
-
+  
 
 * Mysql
 ** 511 游戏玩法分析1
