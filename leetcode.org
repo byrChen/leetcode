@@ -1185,23 +1185,45 @@
           }
       }
     #+end_src 
-*** 一维数组(空间优化)
+  - 二维
     #+begin_src java :classname 
       class Solution {
           public int minimumTotal(List<List<Integer>> triangle) {
-              if (triangle == null || triangle.size() <= 0) return 0;
+              if (triangle == null) return 0;
               int len = triangle.size();
-              int[] res = new int[len+1];
-              for (int i = len-1; i >= 0; i--) {
-                  List<Integer> cur = triangle.get(i);
-                  for (int j = 0; j < cur.size(); j++) {
-                      res[j] = Math.min(res[j], res[j+1]) + cur.get(j);
+              int[][] res = new int[len][len];
+              for (int i = 0; i < len; i++) {
+                  res[len-1][i] = triangle.get(len-1).get(i);
+              }
+              for (int i = len-2; i >= 0; i--) {
+                  for (int j = 0; j <= i; j++) {
+                      res[i][j] = Math.min(res[i+1][j], res[i+1][j+1]) + triangle.get(i).get(j);
+                  }
+              }
+              return res[0][0];
+          }
+      }
+    #+end_src
+  - 一维(空间优化)
+    #+begin_src java :classname 
+      class Solution {
+          public int minimumTotal(List<List<Integer>> triangle) {
+              if (triangle == null) return 0;
+              int len = triangle.size();
+              int[] res = new int[len];
+              for (int i = 0; i < len; i++) {
+                  res[i] = triangle.get(len-1).get(i);
+              }
+
+              for (int i = len-2; i >= 0; i--) {
+                  for (int j = 0; j <= i; j++) {
+                      res[j] = Math.min(res[j], res[j+1]) + triangle.get(i).get(j);
                   }
               }
               return res[0];
           }
       }
-    #+end_src 
+    #+end_src
 * 121 买卖股票的最佳时机                                               :数组:
   #+begin_src java :classname 
     class Solution {
@@ -1928,19 +1950,105 @@
         }
     }
   #+end_src 
-
-* 516 最长回文子序列
+* 300 最长上升子序列                           :贪婪:二分查找:DP:子序列:数组:
+** DP
+   #+begin_src java :classname 
+     class Solution {
+         public int lengthOfLIS(int[] nums) {
+             if (nums == null || nums.length == 0) return 0;
+             int[] len = new int[nums.length];
+             int finalMax = 1;
+             len[0] = 1;
+             for (int i = 1; i < nums.length; i++) {
+                 int prevMax = 0;
+                 for (int j = 0; j < i; j++) {
+                     if (nums[j] < nums[i] && prevMax < len[j]) prevMax = len[j];
+                 }
+                 len[i] = prevMax + 1;
+                 if (finalMax < len[i]) finalMax = len[i];
+             }
+             return finalMax;
+         }
+     }
+   #+end_src 
+** 二分查找                                                      :UNRESOLVED:
+* 516 最长回文子序列                                       :DP:子序列:字符串:
   #+begin_src java :classname 
     class Solution {
         public int longestPalindromeSubseq(String s) {
-
+            if (s == null || s.length() == 0) return 0;
+            int len = s.length();
+            int[][] res = new int[len][len];
+            for (int i = 0; i < len; i++) {
+                res[i][i] = 1;
+            }
+            for (int i = len-2; i >= 0; i--) {
+                for (int j = i+1; j < len; j++) {
+                    if (s.charAt(i) == s.charAt(j)) res[i][j] = res[i+1][j-1] + 2;
+                    else res[i][j] = Math.max(res[i][j-1], res[i+1][j]);
+                }
+            }
+            return res[0][len-1];
         }
     }
   #+end_src 
-* 583 两个字符串的删除操作                                       :UNRESOLVED:
 * 637 二叉树的层平均值                                           :UNRESOLVED:
 *** DFS
 *** BFS
+* 673 最长递增子序列的个数                            :线段树:DP:子序列:数组:
+** DP
+   #+begin_src java :classname 
+     class Solution {
+         public int findNumberOfLIS(int[] nums) {
+             if (nums == null || nums.length == 0) return 0;
+             int maxLen = 1;
+             int[] len = new int[nums.length];
+             len[0] = 1;
+             int[] count = new int[nums.length];
+             Arrays.fill(count, 1);
+             for (int i = 1; i < nums.length; i++) {
+                 int prevMaxLen = 0;
+                 for (int j = 0; j < i; j++) {
+                     if (nums[j] < nums[i]) {
+                         if (prevMaxLen < len[j]) {
+                             prevMaxLen = len[j];
+                             count[i] = count[j];
+                         } else if (prevMaxLen == len[j]) {
+                             count[i] += count[j];
+                         }
+                     }
+                 }
+                 len[i] = prevMaxLen + 1;
+                 if (maxLen < len[i]) maxLen = len[i];
+             }
+             int res = 0;
+             for (int i = 0; i < nums.length; i++) {
+                 if (maxLen == len[i]) res += count[i];
+             }
+             return res;
+         }
+     }
+   #+end_src 
+** 线段树                                                        :UNRESOLVED:
+* 674 最长连续递增序列                                          :子序列:数组:
+  #+begin_src java :classname 
+    class Solution {
+        public int findLengthOfLCIS(int[] nums) {
+            if (nums == null) return 0;
+            int max = 0, i = 0;
+            while (i < nums.length) {
+                int cur = 1;
+                while (i+1 < nums.length && nums[i] < nums[i+1]) {
+                    cur += 1;
+                    i += 1;
+                }
+                if (max < cur) max = cur;
+                i += 1;
+            }
+            return max;
+        }
+    }
+  #+end_src 
 * 803 打砖块                                                        :TOBEORG:
   #+begin_src java :classname 
     public class Solution {
@@ -2110,8 +2218,7 @@
         }
     }
   #+end_src 
-* 1035 不相交的线                                                :UNRESOLVED:
-* 1143 最长公共子序列                                    :编辑距离:DP:字符串:
+* 1143 最长公共子序列                                      :DP:子序列:字符串:
   - 二维
     #+begin_src java :classname 
       class Solution {
@@ -2131,14 +2238,48 @@
       }
     #+end_src
   - 一维(空间优化)
-    #+begin_src java :classname 
-      class Solution {
-          public int longestCommonSubsequence(String text1, String text2) {
-              if (text1 == null || text2 == null) return 0;
-              int len1 = text1.length()+1, len2 = text2.length()+1;
-          }
-      }
-    #+end_src
+    - 按列
+      #+begin_src java :classname 
+        class Solution {
+            public int longestCommonSubsequence(String text1, String text2) {
+                if (text1 == null || text2 == null) return 0;
+                int len1 = text1.length()+1, len2 = text2.length()+1;
+                int[] res = new int[len1];
+                for (int j = 1; j < len2; j++) {
+                    char chj = text2.charAt(j-1);
+                    int prev = 0;
+                    for (int i = 1; i < len1; i++) {
+                        char chi = text1.charAt(i-1);
+                        int temp = res[i];
+                        res[i] = chj == chi ? prev+1 : Math.max(res[i], res[i-1]);
+                        prev = temp;
+                    }
+                }
+                return res[len1-1];
+            }
+        }
+      #+end_src
+    - 按行
+      #+begin_src java :classname 
+        class Solution {
+            public int longestCommonSubsequence(String text1, String text2) {
+                if (text1 == null || text2 == null) return 0;
+                int len1 = text1.length()+1, len2 = text2.length()+1;
+                int[] res = new int[len2];
+                for (int i = 1; i < len1; i++) {
+                    char chi = text1.charAt(i-1);
+                    int prev = 0;
+                    for (int j = 1; j < len2; j++) {
+                        char chj = text2.charAt(j-1);
+                        int temp = res[j];
+                        res[j] = chj == chi ? prev+1 : Math.max(res[j], res[j-1]);
+                        prev = temp;
+                    }
+                }
+                return res[len1-1];
+            }
+        }
+      #+end_src
   - 最长公共子串
     #+begin_src java :classname 
       class Solution {
@@ -2161,6 +2302,10 @@
           }
       }
     #+end_src
+** 583 1035
+  
+
+
 * 面试题
 ** 阿里
 *** 无顺子的排列 
