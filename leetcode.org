@@ -662,7 +662,7 @@
          public boolean canJump(int[] nums) {
              if (nums == null || nums.length <= 0) return false;
              int lastPos = nums.length - 1;
-             for (int i = nums.length-1; i >= 0; i--) {
+             for (int i = nums.length-2; i >= 0; i--) {
                  if (i + nums[i] >= lastPos) lastPos = i;
              }
              return lastPos == 0;
@@ -1168,23 +1168,6 @@
      #+end_src 
 * 120 三角形最小路径和                                              :DP:数组:
 ** 自底向上
-*** 二维数组
-    #+begin_src java :classname 
-      class Solution {
-          public int minimumTotal(List<List<Integer>> triangle) {
-              if (triangle == null || triangle.size() <= 0) return 0;
-              int len = triangle.size();
-              int[][] res = new int[len+1][len+1];
-              for (int i = len-1; i >= 0; i--) {
-                  List<Integer> cur = triangle.get(i);
-                  for (int j = 0; j < cur.size(); j++) {
-                      res[i][j] = Math.min(res[i+1][j], res[i+1][j+1]) + cur.get(j);
-                  }
-              }
-              return res[0][0];
-          }
-      }
-    #+end_src 
   - 二维
     #+begin_src java :classname 
       class Solution {
@@ -2049,6 +2032,14 @@
         }
     }
   #+end_src 
+* 765 情侣牵手                                                   :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public int minSwapsCouples(int[] row) {
+
+        }
+    }
+  #+end_src 
 * 803 打砖块                                                        :TOBEORG:
   #+begin_src java :classname 
     public class Solution {
@@ -2489,6 +2480,78 @@
 *** 4
 *** 5 
 ** 快手
+** 招行
+*** 修塔游戏(网易秋招 塔) 
+** 微软
+*** 括号内字符串替换
+    #+begin_src java :classname 
+      private int index = 0;
+      public List<String> replace(String s) {
+          List<String> res = new ArrayList<>();
+          replaceHelper(s, res);
+          return res;
+      }
+   
+      private void replaceHelper(String s, List<String> res) {
+          if (index == s.length()) {
+              res.add(s);
+              return;
+          }
+          if (s.chatAt(index) != '{') {
+              index += 1;
+              replaceHelper(s, res);
+          } else {
+              int next = index+1;
+              int left = 1, right = 0;
+              while (next < s.length()) {
+                  if (s.chatAt(next) == '{') left += 1;
+                  if (s.chatAt(next) == '}') right += 1;
+                  if (left == right) break;
+                  next += 1;
+              }
+              if (next == s.length()) {
+                  res.add(s);
+                  return;
+              } else {
+                  if (!isValid(s.substring(index, next+1))) {
+                      index = next+1;
+                      replaceHelper(s, res);
+                  }
+                  else {
+                      for (String str : getValue(s.substring(index, next+1), left, right)) {
+                          StringBuilder sb = new StringBuilder;
+                          sb.append(s.substring(0, index));
+                          sb.append(str);
+                          sb.append(s.substring(next+1, s.length()));
+                          index += str.length();
+                          replaceHelper(sb.toString(), res);
+                      }
+                  }
+              }
+          }
+      }
+   
+      private List<String> getValue(String s, int left, int right) {
+          List<String> list = new ArrayList<>();
+          if (left == right && left == 1) {
+              for (String str : GetValue(s.substring(1, s.length()-1))) {
+                  list.add(str);
+              }
+          } else {
+              int index1 = 1, index2 = s.length() - 2;
+              while (s.substring(index1) != '{') index1 += 1;
+              while (s.substring(index2) != '}') index2 += 1;
+              StringBuilder sb = new StringBuilder;
+              sb.append(s.substring(0, index1));
+              for (String str1 : getValue(s.substring(index1, index2+1), left-1, right-1)) {
+                  sb.append(str1);
+                  sb.append(s.substring(index2+1, s.length()));
+                  list.add(sb.toString());
+              }
+          }
+          return list;
+      }
+    #+end_src 
 * Mysql
 ** 511 游戏玩法分析1
  #+begin_src sql
@@ -2668,3 +2731,4 @@
      WHERE author_id = viewer_id
      ORDER BY author_id ASC;
    #+end_src
+
