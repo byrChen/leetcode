@@ -768,7 +768,7 @@
     }
   #+end_src 
 * 75 颜色分类                                         :三指针:快排:排序:数组:
-** 三路快排 [[file:~/csnds/Dropbox/orglife/61b_rnl.org::<<elink19>>][Hoare Partition]]
+** 三路快排 [[file:~/csnds/Dropbox/orglife/61b_rnl.org::<<elink19>>][Hoare Partition]] <<ilink1>>
    #+begin_src java :classname 
      class Solution {
          public void sortColors(int[] nums) {
@@ -1027,8 +1027,6 @@
              return root;
          }
      }
-
-
    #+end_src 
 ** 辅助递归
    #+begin_src java :classname 
@@ -1925,14 +1923,444 @@
         }
     }
   #+end_src 
-* 207 课程表
+* 207 课程表 [[file:~/csnds/Dropbox/orglife/61b_rnl.org::<<elink20>>][图遍历]] [[file:~/csnds/Dropbox/orglife/61b_rnl.org::<<elink21>>][拓扑排序]]             :BFS:DFS:递归:拓扑排序:排序:数组:图:
+** BFS
+   #+begin_src java :classname 
+     class Solution {
+         public boolean canFinish(int numCourses, int[][] prerequisites) {
+             // if (prerequisites == null || prerequisites.length == 0 || prerequisites[0].length == 0) return true;
+             int[] indegrees = new int[numCourses];
+             List<List<Integer>> adj = new ArrayList<>();
+             for (int i = 0; i < numCourses; i++) adj.add(new ArrayList<>());
+             for (int[] prereq : prerequisites) {
+                 indegrees[prereq[0]] += 1;
+                 adj.get(prereq[1]).add(prereq[0]);
+             }
+             Queue<Integer> que = new LinkedList<>();
+             for (int i = 0; i < numCourses; i++) {
+                 if (indegrees[i] == 0) que.offer(i);
+             }
+             while (!que.isEmpty()) {
+                 int pre = que.poll();
+                 numCourses -= 1;
+                 for (int cur : adj.get(pre)) {
+                     indegrees[cur] -= 1;
+                     if (indegrees[cur] == 0) que.offer(cur);
+                 }
+             }
+             return numCourses == 0;
+         }
+     }
+   #+end_src 
+** DFS
+   #+begin_src java :classname 
+     class Solution {
+         public boolean canFinish(int numCourses, int[][] prerequisites) {
+             int[] flags = new int[numCourses];
+             List<List<Integer>> adj = new ArrayList<>();
+             for (int i = 0; i < numCourses; i++) adj.add(new ArrayList<>());
+             for (int[] prereq : prerequisites) adj.get(prereq[1]).add(prereq[0]);
+             for (int i = 0; i < numCourses; i++) {
+                 if (!dfs(adj, flags, i)) return false;
+             }
+             return true;
+         }
+
+         private boolean dfs(List<List<Integer>> adj, int[] flags, int i) {
+             if (flags[i] == 1) return false;
+             if (flags[i] == -1) return true;
+             flags[i] = 1;
+             for (int j : adj.get(i)) {
+                 if (!dfs(adj, flags, j)) return false;
+             }
+             flags[i] = -1;
+             return true;
+         }
+     }
+   #+end_src 
+* 208 实现Trie                                           :数据结构:字典树:树:
+** 节点实现
+   #+begin_src java :classname 
+     class Trie {
+
+         private class Node {
+             Map<Character, Node> map;
+             boolean key;
+             Node(boolean isKey) {
+                 map = new HashMap<>();
+                 key = isKey;
+             }
+         }
+
+         private Node root;
+
+         /** Initialize your data structure here. */
+         public Trie() {
+             root = new Node(false);
+         }
+    
+         /** Inserts a word into the trie. */
+         public void insert(String word) {
+             Node p = root;
+             for (int i = 0; i < word.length(); i++) {
+                 char ch = word.charAt(i);
+                 if (!p.map.containsKey(ch)) {
+                     p.map.put(ch, new Node(false));
+                 }
+                 p = p.map.get(ch);
+             }
+             p.key = true;
+         }
+    
+         /** Returns if the word is in the trie. */
+         public boolean search(String word) {
+             Node p = root;
+             for (int i = 0; i < word.length(); i++) {
+                 char ch = word.charAt(i);
+                 if (!p.map.containsKey(ch)) return false;
+                 p = p.map.get(ch);
+             }
+             return p.key == true;
+         }
+    
+         /** Returns if there is any word in the trie that starts with the given prefix. */
+         public boolean startsWith(String prefix) {
+             Node p = root;
+             for (int i = 0; i < prefix.length(); i++) {
+                 char ch = prefix.charAt(i);
+                 if (!p.map.containsKey(ch)) return false;
+                 p = p.map.get(ch);
+             }
+             return true;
+         }
+     }
+   #+end_src 
+** 数组实现
+   #+begin_src java :classname 
+     public class Trie {
+         private boolean isKey = false;
+         private Trie[] tries = new Trie[26];
+
+         public Trie() {}
+
+         public void insert(String word){//插入单词
+             Trie root = this;
+             char[] chs = word.toCharArray();
+             for (int i = 0; i < chs.length; i++) {
+                 if (root.tries[chs[i]-'a'] == null) root.tries[chs[i]-'a'] = new Trie();
+                 root = root.tries[chs[i]-'a'];
+             }
+             root.isKey = true;
+         }
+
+         public boolean search(String word){//查找单词
+             Trie root = this;
+             char[] chs = word.toCharArray();
+             for (int i = 0; i < chs.length; i++) {
+                 if (root.tries[chs[i]-'a'] == null) return false;
+                 root = root.tries[chs[i]-'a'];
+             }
+             return root.isKey == true;
+         }
+
+         public boolean startsWith(String prefix){//查找前缀
+             Trie root = this;
+             char[] chs = prefix.toCharArray();
+             for (int i = 0; i < chs.length; i++) {
+                 if (root.tries[chs[i]-'a'] == null) return false;
+                 root = root.tries[chs[i]-'a'];
+             }
+             return true;
+         }
+     }
+   #+end_src 
+* 215 数组中的第K个最大元素                           :堆排序:快排:排序:数组:
+** 堆排序
+   #+begin_src java :classname 
+     class Solution {
+         public int findKthLargest(int[] nums, int k) {
+             PriorityQueue<Integer> pq = new PriorityQueue<>();
+             for (int i = 0; i < nums.length; i++) {
+                 if (pq.size() < k) pq.offer(nums[i]);
+                 else {
+                     if (pq.peek() < nums[i]) {
+                         pq.poll();
+                         pq.offer(nums[i]);
+                     }
+                 }
+             }
+             return pq.peek();
+         }
+     }
+   #+end_src 
+** 快排 [[ilink1][三路快排]]
+   #+begin_src java :classname 
+     class Solution {
+         public int findKthLargest(int[] nums, int k) {
+             int len = nums.length, target = len-k;
+             int l = 0, r = len-1;
+             int index = partition2Way(nums, l, r);
+             while (index != target) {
+                 if (index > target) r = index - 1;
+                 else l = index + 1;
+                 index = partition2Way(nums, l, r);
+             }
+
+             // int[] index = partition3Way(nums, l, r);
+             // while (index[0] != target) {
+             //     if (index[0] > target) r = index[1]-1;
+             //     else l = index[0]+1;
+             //     index = partition3Way(nums, l, r);
+             // }
+             // while (index[1] != target) {
+             //     if (index[1] > target) r = index[1]-1;
+             //     else l = index[1]+1;
+             //     index = partition3Way(nums, l, r);
+             // }
+
+             return nums[target];
+         }
+
+         private int partition(int[] array, int l, int r) {
+             int pivot = (int) (Math.random()*(r-l+1)) + l;
+             swap(array, pivot, r);
+             int less = l - 1;
+             while (l < r) {
+                 if (array[l] < array[r]) swap(array, l, ++less);
+                 l++;
+             }
+             swap(array, ++less, r);
+             return less;
+         }
+
+         private int partition2Way(int[] array, int l, int r) {
+             int pivot = (int) (Math.random()*(r-l+1)) + l;
+             swap(array, pivot, r);
+             int i = l, j = r - 1;
+             while (true) {
+                 while(i < r && array[i] < array[r]) i++;
+                 while(j >= l && array[j] > array[r]) j--;
+                 if (i > j) break;
+                 swap(array, i++, j--);
+             }
+             swap(array, i, r);
+             return i;
+         }
+
+         private int[] partition3Way(int[] array, int l, int r) {
+             int pivot = (int) (Math.random()*(r-l+1)) + l;
+             swap(array, pivot, r);
+             int less = l-1, more = r;
+             while (l < more) {
+                 if (array[l] < array[r]) swap(array, ++less, l++);
+                 else if (array[l] > array[r]) swap(array, l, --more);
+                 else l++;
+             }
+             swap(array, r, more);
+             return new int[] {less+1, more};
+         }
+
+         private void swap(int[] array, int i, int j) {
+             int temp = array[i];
+             array[i] = array[j];
+             array[j] = temp;
+         }
+
+     }
+   #+end_src 
+** 三种快排思想
+*** 普通快排 
+    #+begin_src java :classname 
+      public static void QuickSort(int[] array, int l, int r) {
+          if (l >= r) return;
+          int i = partition(array, l, r);
+          QuickSort(array, l, i-1);
+          QuickSort(array, i+1, r);
+      }
+
+      private int partition(int[] array, int l, int r) {
+          int pivot = (int) (Math.random()*(r-l+1)) + l;
+          swap(array, pivot, r);
+          int less = l - 1;
+          while (l < r) {
+              if (array[l] < array[r]) swap(array, l, ++less);
+              l++;
+          }
+          swap(array, r, ++less);
+          return less;
+      }
+    #+end_src 
+*** 双路快排
+    #+begin_src java :classname 
+      private int partition2Way(int[] array, int l, int r) {
+          int pivot = (int) (Math.random()*(r-l+1)) + l;
+          swap(array, r, pivot);
+          int i = l, j = r - 1;
+          while (true) {
+              while (i < r && array[i] < array[r]) i++;
+              while (j >= l && array[i] > array[r]) j--;
+              if (j < i) break;
+              swap(array, i++, j--);
+          }
+          swap(array, i, r);
+          return i;
+      }
+    #+end_src 
+*** 三路快排
+    #+begin_src java :classname 
+      public static void QuickSort(int[] array, int l, int r) {
+          if (l >= r) return;
+          int[] index = partition3Way(array, l, r);
+          QuickSort(array, l, index[0]-1);
+          QuickSort(array, index[1]+1, r);
+      }
+
+      private int partition3Way(int[] array, int l, int r) {
+          int pivot = (int) (Math.random()*(r-l+1)) + l;
+          swap(array, pivot, r);
+          int less = l-1, more = r;
+          while (l < more) {
+              if (array[l] < array[r]) swap(array, l++, ++less);
+              else if (array[l] > array[r]) swap(array, l, --more);
+              else l++;
+          }
+          swap(array, more, r);
+          return new int[] {less+1, more};
+      }
+    #+end_src 
+* 216 组合总和3                                          :回溯:递归:排列组合:
   #+begin_src java :classname 
     class Solution {
-        public boolean canFinish(int numCourses, int[][] prerequisites) {
+        List<List<Integer>> res = new ArrayList<>();
+        Deque<Integer> path = new ArrayDeque<>();
+        public List<List<Integer>> combinationSum3(int k, int n) {
+            helper(k, n, 1);
+            return res;
+        }
 
+        private void helper(int k, int n, int start) {
+            if (k == 0 && n == 0) {
+                if (!path.isEmpty()) res.add(new ArrayList(path));
+                return;
+            }
+            if (k <= 0 || n <= 0) return;
+            for (int i = start; i < 10; i++) {
+                path.push(i);
+                helper(k-1, n-i, i+1);
+                path.pop();
+            }
         }
     }
   #+end_src 
+* 221 最大正方形                                           :DP:二维数组:数组:
+  #+begin_src java :classname 
+    class Solution {
+        public int maximalSquare(char[][] matrix) {
+            if (matrix == null || matrix.length == 0 || matrix[0].length == 0) return 0;
+            int rows = matrix.length, cols = matrix[0].length;
+            int[][] dp = new int[rows+1][cols+1];
+            int max = Integer.MIN_VALUE;
+            for (int i = 1; i <= rows; i++) {
+                for (int j = 1; j <= cols; j++) {
+                    if (matrix[i-1][j-1] == '0') continue;
+                    int prev = Math.min(dp[i-1][j-1], Math.min(dp[i][j-1], dp[i-1][j]));
+                    dp[i][j] = prev + 1;
+                    if (max < dp[i][j]) max = dp[i][j];
+                }
+            }
+            return max*max;
+        }
+    }
+  #+end_src 
+* 226 翻转二叉树 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink22>>][offer27]]  :BFS:DFS:对称遍历:前序遍历:层序遍历:递归:二叉树:树:
+  #+begin_src java :classname 
+    class Solution {
+        public TreeNode invertTree(TreeNode root) {
+            if (root == null) return root;
+            TreeNode temp = invertTree(root.left);
+            root.left = invertTree(root.right);
+            root.right = temp;
+            return root;
+        }
+    }
+  #+end_src 
+* 234 回文链表                                         :快慢指针:双指针:链表:
+** 借助 ~Stack~ 
+   #+begin_src java :classname 
+     class Solution {
+         public boolean isPalindrome(ListNode head) {
+             Stack<Integer> s = new Stack<>();
+             ListNode p1 = head, p2 = head;
+             while (p2 != null && p2.next != null) {
+                 s.push(p1.val);
+                 p1 = p1.next;
+                 p2 = p2.next.next;
+             }
+             if (p2 != null) p1 = p1.next;
+             while (p1 != null) {
+                 if (p1.val != s.pop()) return false;
+                 p1 = p1.next;
+             }
+             return true;
+         }
+     }
+   #+end_src 
+** 反转链表 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink19>>][offer24]]
+   #+begin_src java :classname 
+     class Solution {
+         public boolean isPalindrome(ListNode head) {
+             ListNode p1 = head, p2 = head;
+             while (p2 != null && p2.next != null) {
+                 p1 = p1.next;
+                 p2 = p2.next.next;
+             }
+             p2 = p2 == null ? p1 : p1.next;
+             p1 = head;
+             ListNode rHead = reverseList(p2);
+             p2 = rHead;
+             while (p2 != null) {
+                 if (p1.val != p2.val) return false;
+                 p1 = p1.next;
+                 p2 = p2.next;
+             }
+             reverseList(rHead);
+             return true;
+         }
+
+         private ListNode reverseList(ListNode n) {
+             ListNode pre = null, next = null;
+             while (n != null) {
+                 next = n.next;
+                 n.next = pre;
+                 pre = n;
+                 n = next;
+             }
+             return pre;
+         }
+     }
+   #+end_src 
+** 递归                                                          :UNRESOLVED:
+   #+begin_src java :classname 
+     class Solution {
+
+         private ListNode frontPointer;
+
+         private boolean recursivelyCheck(ListNode currentNode) {
+             if (currentNode != null) {
+                 if (!recursivelyCheck(currentNode.next)) return false;
+                 if (currentNode.val != frontPointer.val) return false;
+                 frontPointer = frontPointer.next;
+             }
+             return true;
+         }
+
+         public boolean isPalindrome(ListNode head) {
+             frontPointer = head;
+             return recursivelyCheck(head);
+         }
+     }
+   #+end_src 
+* 236 二叉树的最近公共祖先
 * 300 最长上升子序列                           :贪婪:二分查找:DP:子序列:数组:
 ** DP
    #+begin_src java :classname 
@@ -2732,3 +3160,5 @@
      ORDER BY author_id ASC;
    #+end_src
 
+
+  
