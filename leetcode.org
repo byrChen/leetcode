@@ -110,8 +110,8 @@
         }
     }
   #+end_src 
-* 5 最长回文子串                                  :DP:扩展窗口:双指针:字符串:
-** 中心扩展算法
+* 5 最长回文子串                         :DP:扩展窗口:双指针:中心扩展:字符串:
+** 中心扩展算法 <<ilink5>>
    #+begin_src java :classname 
      class Solution {
          public String longestPalindrome(String s) {
@@ -139,6 +139,42 @@
      }
    #+end_src 
 ** 最长公共子串(DP)                                              :UNRESOLVED:
+* 7 整数翻转
+  #+begin_src java :classname 
+    class Solution {
+        public int reverse(int x) {
+            long res = 0;
+            while (x != 0) {
+                res = res*10 + x % 10;
+                if (res < Integer.MIN_VALUE || res > Integer.MAX_VALUE) return 0;
+                x = x / 10;
+            }
+            return (int)res;
+        }
+    }
+  #+end_src 
+* 8 字符串转换整数(atoi)                                        :大数:字符串:
+  #+begin_src java :classname 
+    class Solution {
+        public int myAtoi(String str) {
+            str = str.trim();
+            if (str == null || str.length() == 0) return 0;
+            char cur = str.charAt(0);
+            boolean neg = cur == '-' ? true : false;
+            int i = 0;
+            if (neg || cur == '+') i++;
+            long res = 0;
+            for (; i < str.length(); i++) {
+                cur = str.charAt(i);
+                if (cur < '0' || cur > '9') break;
+                res = neg ? 10*res+'0'-cur : 10*res + cur-'0';
+                if (res < Integer.MIN_VALUE) return Integer.MIN_VALUE;
+                if (res > Integer.MAX_VALUE) return Integer.MAX_VALUE;
+            }
+            return (int)res;
+        }
+    }
+  #+end_src 
 * 10 正则表达式匹配 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink9>>][offer19]]                         :DP:DFS:回溯:递归:字符串:
 ** 递归
    #+begin_src java :classname 
@@ -180,6 +216,95 @@
          }
      }
    #+end_src 
+* 13 罗马数字转整数                                                  :字符串:
+  #+begin_src java :classname 
+    class Solution {
+        public int romanToInt(String s) {
+            char[] chs = s.toCharArray();
+            int res = 0, len = chs.length;
+            for (int i = 0; i < len; i++) {
+                switch (chs[i]) {
+                case 'I':
+                    if (i+1 < len && (chs[i+1] == 'V' || chs[i+1] == 'X')) res -= 1;
+                    else res += 1;
+                    break;
+                case 'V':
+                    res += 5;
+                    break;
+                case 'X':
+                    if (i+1 < len && (chs[i+1] == 'L' || chs[i+1] == 'C')) res -= 10;
+                    else res += 10;
+                    break;
+                case 'L':
+                    res += 50;
+                    break;
+                case 'C':
+                    if (i+1 < len && (chs[i+1] == 'D' || chs[i+1] == 'M')) res -= 100;
+                    else res += 100;
+                    break;
+                case 'D':
+                    res += 500;
+                    break;
+                case 'M':
+                    res += 1000;
+                    break;
+                }
+            }
+            return res;
+        }
+    }
+  #+end_src 
+* 14 最长公共前缀                                                    :字符串:
+** 扫描
+   - 横向扫描
+     #+begin_src java :classname 
+       class Solution {
+           public String longestCommonPrefix(String[] strs) {
+               if (strs == null || strs.length == 0) return "";
+               StringBuilder sb = new StringBuilder();
+               sb.append(strs[0]);
+               for (int i = 1; i < strs.length; i++) {
+                   int len = Math.min(sb.length(), strs[i].length());
+                   int j = 0;
+                   for (; j < len; j++) {
+                       if (sb.charAt(j) != strs[i].charAt(j)) break;
+                   }
+                   sb.delete(j, sb.length());
+                   if (sb.length() == 0) return "";
+               }
+               return sb.toString();
+           }
+       }
+     #+end_src
+   - 纵向扫描
+     #+begin_src java :classname 
+       class Solution {
+           public String longestCommonPrefix(String[] strs) {
+               if (strs == null || strs.length == 0) return "";
+               int len = Integer.MAX_VALUE;
+               for (String str : strs) {
+                   if (str.length() < len) len = str.length();
+               }
+               StringBuilder sb = new StringBuilder();
+               for (int i = 0; i < len; i++) {
+                   boolean isCommon = true;
+                   sb.append(strs[0].charAt(i));
+                   for (int j = 1; j < strs.length; j++) {
+                       if (sb.charAt(i) != strs[j].charAt(i)) {
+                           sb.deleteCharAt(i);
+                           isCommon = false;
+                           break;
+                       }
+                   }
+                   if (!isCommon) break;
+               }
+               return sb.toString();
+           }
+       }
+     #+end_src
+** 字典树                                                        :UNRESOLVED:
+   #+begin_src java :classname 
+   #+end_src 
 * 15 三数之和                                                :双指针:DP:数组:
   #+begin_src java :classname 
     class Solution {
@@ -203,9 +328,9 @@
                         // lists.add(list);
                         lists.add(Arrays.asList(nums[i], nums[left], nums[right]));
                         while (left < right && nums[left] == nums[left+1])   left += 1;
-                        while (left < right && nums[right] == nums[right-1]) right -= 1;
+                        // while (left < right && nums[right] == nums[right-1]) right -= 1;
                         left += 1;
-                        right -= 1;
+                        // right -= 1;
                     }
                 }
             }
@@ -261,7 +386,7 @@
         }
     }
   #+end_src 
-* 20 有效的括号                                                   :栈:字符串:
+* 20 有效的括号                                            :辅助栈:栈:字符串:
   #+begin_src java :classname 
     class Solution {
         public boolean isValid(String s) {
@@ -329,6 +454,110 @@
    #+end_src 
 ** DP(闭合数)                                                    :UNRESOLVED:
 * 23 合并K个排序链表                                             :UNRESOLVED:
+* 26 删除排序数组中的重复项                                            :数组:
+  #+begin_src java :classname 
+    class Solution {
+        public int removeDuplicates(int[] nums) {
+            if (nums == null || nums.length == 0) return 0;
+            int next = 1;
+            for (int i = 1; i < nums.length; i++) {
+                if (nums[i] != nums[next-1]) {
+                    nums[next] = nums[i];
+                    next++;
+                }
+            }
+            return next;
+        }
+    }
+  #+end_src 
+* 28 实现strStr()                                                    :字符串:
+  #+begin_src java :classname 
+    class Solution {
+        public int strStr(String haystack, String needle) {
+            if (haystack == null || needle == null || haystack.length() < needle.length()) return -1;
+            if (needle.length() == 0) return 0;
+            for (int i = 0; i <= haystack.length()-needle.length(); i++) {
+                if (haystack.charAt(i) != needle.charAt(0)) continue;
+                if (haystack.substring(i, i+needle.length()).equals(needle)) return i;
+            }
+            return -1;
+        }
+    }
+  #+end_src 
+* 29 两数相除                                          :溢出:位运算:数值计算:
+** 逐次相减(超时)
+   #+begin_src java :classname 
+     class Solution {
+         public int divide(int dividend, int divisor) {
+             if (dividend == 0) return 0;
+             boolean neg = (dividend ^ divisor) < 0;
+             long dividendL = Math.abs((long)dividend);
+             long divisorL = Math.abs((long)divisor);
+             long res = 0;
+             dividendL -= divisorL;
+             while (dividendL >= 0) {
+                 res = neg ? res-1 : res+1;
+                 dividendL -= divisorL;
+                 if (res < Integer.MIN_VALUE) return Integer.MIN_VALUE;
+                 if (res > Integer.MAX_VALUE) return Integer.MAX_VALUE;
+             }
+             return (int)res;
+         }
+     }
+   #+end_src 
+** 位运算                                                        :UNRESOLVED:
+   - 借用 ~long~ 
+     #+begin_src java :classname 
+       class Solution {
+           public int divide(int dividend, int divisor) {
+               if (dividend == 0) return 0;
+               if (dividend == Integer.MIN_VALUE && divisor == -1) return Integer.MAX_VALUE;
+               boolean neg = (dividend ^ divisor) < 0;
+               // boolean neg = (dividend < 0 && divisor > 0) || (dividend > 0 && divisor < 0);
+               long dividendL = Math.abs((long)dividend);
+               long divisorL = Math.abs((long)divisor);
+               long res = 0;
+               for (int i = 31; i >= 0; i--) {
+                   if ((dividendL>>i) >= divisorL) {
+                       res = neg ? res-(1<<i) : res+(1<<i);
+                       if ((int)res >= Integer.MAX_VALUE) return Integer.MAX_VALUE;
+                       if ((int)res <= Integer.MIN_VALUE) return Integer.MIN_VALUE;
+                       dividendL -= divisorL<<i;
+                   }
+               }
+               return (int)res;
+           }
+       }
+     #+end_src
+   - 不用 ~long~, 转化为负数考虑
+     #+begin_src java :classname 
+       class Solution {
+           public int divide(int dividend, int divisor) {
+               boolean sign = (dividend > 0) ^ (divisor > 0);
+               int result = 0;
+               if(dividend>0) {
+                   dividend = -dividend;
+               }
+               if(divisor>0) divisor = -divisor;
+               while(dividend <= divisor) {
+                   int temp_result = -1;
+                   int temp_divisor = divisor;
+                   while(dividend <= (temp_divisor << 1)) {
+                       if(temp_divisor <= (Integer.MIN_VALUE >> 1))break;
+                       temp_result = temp_result << 1;
+                       temp_divisor = temp_divisor << 1;
+                   }
+                   dividend = dividend - temp_divisor;
+                   result += temp_result;
+               }
+               if(!sign) {
+                   if(result <= Integer.MIN_VALUE) return Integer.MAX_VALUE;
+                   result = - result;
+               }
+               return result;
+           }
+       }
+     #+end_src 
 * 31 下一个排列                                          :排序:排列组合:数组:
   #+begin_src java :classname 
     class Solution {
@@ -437,6 +666,182 @@
         }
     }
   #+end_src 
+* 36 有效的数独                                        :位运算:二维数组:数组:
+** 借用 ~Set~ 逐行逐列逐块
+   #+begin_src java :classname 
+     class Solution {
+         public boolean isValidSudoku(char[][] board) {
+             for (int i = 0; i < 9; i++) {
+                 if (!isValidRnC(board, i)) return false;
+                 if (i%3 == 0) {
+                     for (int j = 0; j < 9; j+=3) {
+                         if (!isValidBlock(board, i, j)) return false;
+                     }
+                 }
+             }
+             return true;
+         }
+
+         private boolean isValidRnC(char[][] board, int i) {
+             Set<Character> rowSet = new HashSet();
+             Set<Character> colSet = new HashSet();
+             for (int j = 0; j < 9; j++) {
+                 if (board[i][j] != '.') {
+                     if (rowSet.contains(board[i][j])) return false;
+                     rowSet.add(board[i][j]);
+                 }
+                 if (board[j][i] != '.') {
+                     if (colSet.contains(board[j][i])) return false;
+                     colSet.add(board[j][i]);
+                 }
+             }
+             return true;
+         }
+
+         private boolean isValidBlock(char[][] board, int i, int j) {
+             Set<Character> blockSet = new HashSet();
+             for (int row = i; row < i+3; row++) {
+                 for (int col = j; col < j+3; col++) {
+                     if (board[row][col] != '.') {
+                         if (blockSet.contains(board[row][col])) return false;
+                         blockSet.add(board[row][col]);
+                     }
+                 }
+             }
+             return true;
+         }
+     }
+   #+end_src
+** 逐个字符判断所在行所在列所在块
+   - 直接判断
+     #+begin_src java :classname 
+       class Solution {
+           public boolean isValidSudoku(char[][] board) {
+               if(board == null || board.length <= 1){
+                   return false;
+               }
+               for(int i = 0;i < board.length;i++){
+                   for(int j = 0;j < board[0].length;j++){
+                       if(board[i][j] != '.'){
+                           if(!isValidHelp(board, board[i][j], i, j)){
+                               return false;
+                           }
+                       }
+                   }
+               }
+               return true;
+           }
+
+
+           public boolean isValidHelp(char[][] board,char c,int row,int column){
+            
+               if(board == null) return false;
+            
+               for(int i = 0;i < row;i++){
+                   if(board[i][column] == c && i != row){
+                       return false;
+                   }
+               }
+               for(int i = 0;i < column;i++){
+                   if(board[row][i] == c && i != column){
+                       return false;
+                   }
+               }
+        
+               int n = row/3;
+               int m = column/3;
+
+               for(int i = n * 3;i < n * 3 + 3;i++){
+                   for(int j = m * 3;j < m * 3 + 3;j++){
+                       if(board[i][j] == c ){
+                           if(i != row && j != column){
+                               return false;
+                           }
+                       }
+                   }
+               }
+               return true;
+           }
+       }
+     #+end_src
+   - 存储辅助判断
+     #+begin_src java :classname 
+         class Solution {
+             public boolean isValidSudoku(char[][] board) {
+                 boolean[][] row = new boolean[9][9];
+                 boolean[][] col = new boolean[9][9];
+                 boolean[][] block = new boolean[9][9];
+                 for (int i = 0; i < 9; i++) {
+                     for (int j = 0; j < 9; j++) {
+                         if (board[i][j] != '.') {
+                             int num = board[i][j] - '1';
+                             int blockIndex = i / 3 * 3 + j / 3;
+                             if (row[i][num] || col[j][num] || block[blockIndex][num]) {
+                                 return false;
+                             } else {
+                                 row[i][num] = true;
+                                 col[j][num] = true;
+                                 block[blockIndex][num] = true;
+                             }
+                         }
+                     }
+                 }
+                 return true;
+             }
+
+             public boolean isValidSudoku(char[][] board) {
+                 int[] rows = new int[9];
+                 int[] columns = new int[9];
+                 int[] boxes = new int[9];
+                 for (int row = 0; row < 9; row++) {
+                     for (int column = 0; column < 9; column++) {
+                         char c = board[row][column];
+                         if (c == '.') {
+                             continue;
+                         }
+                         int val = 1 << c - '1';
+                         int i = row/3*3 + column/3;
+                         if (((rows[row] | columns[column] | boxes[i]) & val) > 0) {
+                             return false;
+                         }
+                         rows[row] |= val;
+                         columns[column] |= val;
+                         boxes[i] |= val;
+                     }
+                 }
+                 return true;
+             }
+         }
+       #+end_src
+* 37 解数独                                                      :UNRESOLVED:
+* 38 外观数列                                                   :递归:字符串:
+  #+begin_src java :classname 
+    class Solution {
+        public String countAndSay(int n) {
+            if (n == 1) return "1";
+            return describeHelper(countAndSay(n-1).toCharArray());
+        }
+
+        private String describeHelper(char[] chs) {
+            StringBuilder sb = new StringBuilder();
+            char cur = chs[0]
+            int count = 0;
+            for (char ch : chs) {
+                if (ch != cur) {
+                    sb.append(count);
+                    sb.append(cur);
+                    cur = ch;
+                    count = 1;
+                } else {
+                    count += 1;
+                }
+            }
+            sb.append(count);
+            sb.append(cur);
+            return sb.toString();
+        }
+    }
+  #+end_src 
 * 39 组合总数                                   :DFS:回溯:递归:排列组合:数组:
   #+begin_src java :classname 
     class Solution {
@@ -463,7 +868,23 @@
         }
     }
   #+end_src 
+* 41 缺失的第一个正数                                            :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public int firstMissingPositive(int[] nums) {
+
+        }
+    }
+  #+end_src 
 * 42 接雨水                                                      :UNRESOLVED:
+* 44 通配符匹配                                                  :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public boolean isMatch(String s, String p) {
+
+        }
+    }
+  #+end_src 
 * 46 全排列                                     :DFS:回溯:递归:排列组合:数组:
   #+begin_src java :classname 
     class Solution {
@@ -519,7 +940,7 @@
         }
     }
   #+end_src 
-* 48 旋转图像                                            :矩阵:二维数组:数组:
+* 48 旋转图像                                                 :二维数组:数组:
 ** 旋转4个矩形(直接规律)
    #+begin_src java :classname 
      class Solution {
@@ -621,6 +1042,64 @@
          }
      }
    #+end_src 
+* 50 Pow(x, n)                                  :溢出:递归:数值规律:数值计算:
+** 暴力
+   #+begin_src java :classname 
+     public class Solution {
+         public double myPow(double base, int exponent) {
+             if (base == 0) return 0.0;
+             if (exponent == 0) return 1;
+             if (Math.abs(base) == 1) {
+                 if (base > 0 || (exponent&1) == 0) return 1;
+                 else return -1;
+             }
+             if (exponent == Integer.MIN_VALUE) {
+                 if (Math.abs(base) >= 1) return 0.0;
+                 else return Integer.MAX_VALUE;
+             }
+             if (exponent < 0) {
+                 exponent = 0 - exponent;
+                 base = 1 / base;
+             }
+             double result = base;
+             while (exponent > 1) {
+                 result *= base;
+                 exponent -= 1;
+             }
+             return result;
+         }
+     }
+   #+end_src 
+** 快速幂
+*** 递归
+   #+begin_src java :classname 
+     public class Solution {
+         public double myPow(double base, int exponent) {
+             return myPow(base, (long)exponent);
+         }
+
+         private double myPow(double base, long exponent) {
+             if (exponent == 0) return 1;
+             if (exponent > 0) return (exponent&1) == 1 ? base*myPow(base, exponent-1) : myPow(base*base, exponent>>1);
+             return 1 / myPow(base, -exponent);
+         }
+     }
+   #+end_src 
+*** 迭代
+   #+begin_src java :classname 
+     public class Solution {
+         public double myPow(double base, int exponent) {
+             double res = 1.0;
+             boolean neg = exponent < 0;
+             while (exponent != 0) {
+                 if ((exponent&1) == 1) res *= jbase;
+                 base *= base;
+                 exponent /= 2;
+             }
+             return neg ? 1/res : res;
+         }
+     }
+   #+end_src 
 * 53 最大子序和                                                     :DP:数组:
   #+begin_src java :classname 
     class Solution {
@@ -633,6 +1112,30 @@
                 if (curSum < 0) curSum = 0;
             }
             return maxSum;
+        }
+    }
+  #+end_src 
+* 54 螺旋矩阵 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink29>>][offer29]]                                         :二维数组:数组:
+  #+begin_src java :classname 
+    class Solution {
+        public List<Integer> spiralOrder(int[][] matrix) {
+            List<Integer> res = new LinkedList<>();
+            if (matrix == null || matrix.length == 0 || matrix[0].length == 0) return res;
+            int up = 0, down = matrix.length-1;
+            int left = 0, right = matrix[0].length-1;
+            while (up <= down && left <= right) {
+                for (int col = left; col <= right; col++) res.add(matrix[up][col]);
+                up++;
+                for (int row = up; row <= down; row++) res.add(matrix[row][right]);
+                right--;
+                if (up > down) break;
+                for (int col = right; col >= left; col--) res.add(matrix[down][col]);
+                down--;
+                if (left > right) break;
+                for (int row = down; row >= up; row--) res.add(matrix[row][left]);
+                left++;
+            }
+            return res;
         }
     }
   #+end_src 
@@ -741,6 +1244,76 @@
         }
     }
   #+end_src 
+* 66 加一                                                              :数组:
+  #+begin_src java :classname 
+    class Solution {
+        public int[] plusOne(int[] digits) {
+            int[] res = new int[digits.length+1];
+            int carry = 1;
+            for (int i = digits.length-1; i >= 0; i--) {
+                carry += digits[i];
+                res[i+1] = carry % 10;
+                carry /= 10;
+            }
+            if (carry != 0) res[0] = carry;
+            return res[0] != 0 ? res : Arrays.copyOfRange(res, 1, res.length);
+        }
+    }
+  #+end_src 
+* 69 x的平方根                                            :数值规律:数值计算:
+** 暴力
+   #+begin_src java :classname 
+     class Solution {
+         public int mySqrt(int x) {
+             if (x <= 1) return x;
+             int res = 1;
+             // 防止res*res溢出
+             while (res <= x/res) res += 1;
+             return res-1;
+         }
+     }
+   #+end_src 
+** 袖珍计算器算法
+   #+begin_src java :classname 
+     class Solution {
+         public int mySqrt(int x) {
+             if (x <= 1) return x;
+             int res = (int)Math.exp(0.5 * Math.log(x));
+             return (long)(res+1) * (res+1) <= x ? res+1 : res;
+         }
+     }
+   #+end_src 
+** 二分法
+   #+begin_src java :classname 
+     class Solution {
+         public int mySqrt(int x) {
+             if (x <= 1) return x;
+             int left = 1, right = (x>>1) + 1, mid = (left+right) >> 1;
+             while (left < right) {
+                 if (mid < x/mid) left = mid + 1;
+                 else if (mid > x/mid) right = mid;
+                 else return mid;
+                 mid = (left+right) >> 1;
+             }
+             return left > x/left ? left-1 : left;
+         }
+     }
+   #+end_src 
+** 牛顿迭代法
+   #+begin_src java :classname 
+     class Solution {
+         public int mySqrt(int x) {
+             if (x <= 1) return x;
+             double res = (double)x;
+             while (true) {
+                 double next = (res+x/res)*0.5;
+                 if (Math.abs(res-next) < 1e-7) break;
+                 res = next;
+             }
+             return (int)res;
+         }
+     }
+   #+end_src 
 * 70 爬楼梯                                                              :DP:
 ** DP
    #+begin_src java :classname 
@@ -767,6 +1340,155 @@
         }
     }
   #+end_src 
+* 73 矩阵置零                                                 :二维数组:数组:
+** 先遍历再置零
+*** 暴力
+    #+begin_src java :classname 
+      class Solution {
+          public void setZeroes(int[][] matrix) {
+              Set<Integer> rows = new HashSet<>();
+              Set<Integer> cols = new HashSet<>();
+
+              for (int row = 0; row < matrix.length; row++) {
+                  for (int col = 0; col < matrix[0].length; col++) {
+                      if (matrix[row][col] == 0) {
+                          rows.add(row);
+                          cols.add(col);
+                      }
+                  }
+              }
+
+              for (int row : rows) {
+                  for (int col = 0; col < matrix[0].length; col++) {
+                      matrix[row][col] = 0;
+                  }
+              }
+
+              for (int col : cols) {
+                  for (int row = 0; row < matrix.length; row++) {
+                      matrix[row][col] = 0;
+                  }
+              }
+          }
+      }
+    #+end_src 
+*** 本地记录信息
+    - 利用第一行和第一列
+      #+begin_src java :classname 
+        class Solution {
+            public void setZeroes(int[][] matrix) {
+                boolean row0_flag = false, col0_flag = false;
+                int rows = matrix.length, cols = matrix[0].length;
+                for (int row = 0; row < rows; row++) {
+                    if (matrix[row][0] == 0) {
+                        col0_flag = true;
+                        break;
+                    }
+                }
+
+                for (int col = 0; col < cols; col++) {
+                    if (matrix[0][col] == 0) {
+                        row0_flag = true;
+                        break;
+                    }
+                }
+
+                for (int row = 1; row < rows; row++) {
+                    for (int col = 1; col < cols; col++) {
+                        if (matrix[row][col] == 0) {
+                            matrix[row][0] = matrix[0][col] = 0;
+                        }
+                    }
+                }
+
+                for (int row = 1; row < rows; row++) {
+                    for (int col = 1; col < cols; col++) {
+                        if (matrix[row][0] == 0 || matrix[0][col] == 0) matrix[row][col] = 0;
+                    }
+                }
+
+                if (row0_flag) {
+                    for (int col = 0; col < cols; col++) {
+                        matrix[0][col] = 0;
+                    }
+                }
+
+                if (col0_flag) {
+                    for (int row = 0; row < rows; row++) {
+                        matrix[row][0] = 0;
+                    }
+                }
+            }
+        }
+      #+end_src
+    - 简化-仅利用第一列
+      #+begin_src java :classname 
+        class Solution {
+            public void setZeroes(int[][] matrix) {
+                boolean col0_flag = false;
+                int rows = matrix.length, cols = matrix[0].length;
+                for (int row = 0; row < rows; row++) {
+                    if (matrix[row][0] == 0) col0_flag = true;
+                    for (int col = 1; col < cols; col++) {
+                        if (matrix[row][col] == 0) {
+                            matrix[row][0] = matrix[0][col] = 0;
+                        }
+                    }
+                }
+
+                for (int row = rows-1; row >= 0; row--) {
+                    for (int col = cols-1; col >= 1; col--) {
+                        if (matrix[row][0] == 0 || matrix[0][col] == 0) matrix[row][col] = 0;
+                    }
+                    if (col0_flag) matrix[row][0] = 0;
+                }
+            }
+        }
+      #+end_src
+** 边遍历边置零                                                  :UNRESOLVED:
+   #+begin_src java :classname 
+     class Solution {
+         public void setZeroes(int[][] matrix) {
+             if (matrix == null || matrix.length == 0 || matrix[0].length == 0) {
+                 return;
+             }
+             // 前一行为0标志
+             boolean isLastRowZero = false;
+             for (int i = 0; i < matrix.length; i ++) {
+                 // 当前行为0标志
+                 boolean isCurrRowZero = false;
+                 for (int j = 0; j < matrix[0].length; j ++) {
+                     if (matrix[i][j] == 0) {
+                         isCurrRowZero = true;
+                         // 纵向上一个值不是零，说明纵向第一次出现零，需要把纵向前面的值都置为零
+                         if (i > 0 && matrix[i - 1][j] != 0) {
+                             for (int k = 0; k < i; k ++) {
+                                 matrix[k][j] = 0;
+                             }
+                         }
+                     }
+                     // 纵向上一个值如果为零，则把纵向的零延伸到此行
+                     else if (i > 0 && matrix[i - 1][j] == 0){
+                         matrix[i][j] = 0;
+                     }
+                
+                     // 如果上一行为零标志为真,则上一行这个位置置为零（纵向为零的判断在上面处理过，所以到这里才可以设置为0）
+                     if (isLastRowZero) {
+                         matrix[i - 1][j] = 0;
+                     }
+                 }
+                 isLastRowZero = isCurrRowZero;
+             }
+
+             // 处理最后一行为零的情况
+             if (isLastRowZero) {
+                 for (int i = 0; i < matrix[0].length; i ++) {
+                     matrix[matrix.length - 1][i] = 0;
+                 }
+             }
+         }
+     }
+   #+end_src 
 * 75 颜色分类                                         :三指针:快排:排序:数组:
 ** 三路快排 [[file:~/csnds/Dropbox/orglife/61b_rnl.org::<<elink19>>][Hoare Partition]] <<ilink1>>
    #+begin_src java :classname 
@@ -884,6 +1606,38 @@
   #+begin_src java :classname 
   #+end_src 
 * 85 最大矩形                                                    :UNRESOLVED:
+* 88 合并两个有序数组                                             :排序:数组:
+  #+begin_src java :classname 
+    class Solution {
+        public void merge(int[] nums1, int m, int[] nums2, int n) {
+            int i = m-1, j = n-1;
+            for (int k = m+n-1; k >= 0; k--) {
+                if (j < 0) nums1[k] = nums1[i--];
+                else if (i < 0) nums1[k] = nums2[j--];
+                else if (nums1[i] < nums2[j]) nums1[k] = nums2[j--];
+                else nums1[k] = nums1[i--];
+            }
+        }
+    }
+  #+end_src 
+* 91 解码方法 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink30>>][offer46]]                                             :DP:字符串:
+  #+begin_src java :classname 
+    class Solution {
+        public int numDecodings(String s) {
+            int len = s.length();
+            int[] dp = new int[len+1];
+            dp[0] = 1;
+            dp[1] = s.charAt(0) != '0' ? 1 : 0;
+            for (int i = 1; i < len; i++) {
+                char ch1 = s.charAt(i-1), ch2 = s.charAt(i);
+                int subint = (ch1-'0')*10 + (ch2-'0');
+                if (ch2 != '0') dp[i+1] = dp[i];
+                if (ch1 != '0' && subint <= 26) dp[i+1] += dp[i-1];
+            }
+            return dp[len];
+        }
+    }
+  #+end_src 
 * 94 二叉树的中序遍历                           :DFS:递归:中序遍历:二叉树:树:
   #+begin_src java :classname 
     class Solution {
@@ -998,6 +1752,38 @@
         }
     }
   #+end_src 
+* 103 二叉树的锯齿形层次遍历 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink31>>][offer32]]                 :BFS:层序遍历:二叉树:树:
+  #+begin_src java :classname 
+    class Solution {
+        public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
+            List<List<Integer>> res = new LinkedList<>();
+            if (root == null) return res;
+            boolean l2r = true;
+            Deque<TreeNode> dq = new LinkedList<>();
+            dq.offer(root);
+            while (!dq.isEmpty()) {
+                int size = dq.size();
+                List<Integer> list = new LinkedList<>();
+                for (int i = 0; i < size; i++) {
+                    if (l2r) {
+                        TreeNode cur = dq.removeFirst();
+                        if (cur.left != null) dq.addLast(cur.left);
+                        if (cur.right != null) dq.addLast(cur.right);
+                        list.add(cur.val);
+                    } else {
+                        TreeNode cur = dq.removeLast();
+                        if (cur.right != null) dq.addFirst(cur.right);
+                        if (cur.left != null) dq.addFirst(cur.left);
+                        list.add(cur.val);
+                    }
+                }
+                res.add(list);
+                l2r = !l2r;
+            }
+            return res;
+        }
+    }
+  #+end_src 
 * 104 二叉树的最大深度 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink13>>][offer55]]                               :递归:二叉树:树:
   #+begin_src java :classname 
     class Solution {
@@ -1060,6 +1846,20 @@
          }
      }
    #+end_src 
+* 108 将有序数组转换为二叉搜索树            :递归:DFS:前序遍历:二叉搜索树:树:
+  #+begin_src java :classname 
+    class Solution {
+        public TreeNode sortedArrayToBST(int[] nums) {
+            if (nums == null || nums.length == 0) return null;
+            TreeNode root = 0;
+            int len = nums.length;
+            root = new TreeNode(nums[len/2]);
+            root.left = sortedArrayToBST(Arrays.copyOfRange(nums, 0, len/2));
+            root.right = sortedArrayToBST(Arrays.copyOfRange(nums, len/2+1, len));
+            return root;
+        }
+    }
+  #+end_src 
 * 114 二叉树展开为链表 :DFS:递归:对称后序遍历:中序遍历:后序遍历:链表:二叉树:树:
 ** 迭代
    #+begin_src java :classname 
@@ -1164,6 +1964,67 @@
 
        while (!stack2.empty()) stack2.pop();
      #+end_src 
+* 116 填充每个节点的下一个右侧节点指针 :BFS:层序遍历:递归:DFS:前序遍历:二叉树:树:
+** 层序遍历BFS
+   #+begin_src java :classname 
+     class Solution {
+         public Node connect(Node root) {
+             if (root == null) return null;
+             Queue<Node> que = new LinkedList<>();
+             que.offer(root);
+             while (!que.isEmpty()) {
+                 int size = que.size();
+                 Node pre = null;
+                 for (int i = 0; i < size; i++) {
+                     Node cur = que.poll();
+                     cur.next = pre;
+                     pre = cur;
+                     if (cur.left != null) {
+                         que.offer(cur.right);   
+                         que.offer(cur.left);
+                     }
+                 }
+             }
+             return root;
+         }
+     }
+   #+end_src 
+** 前序遍历DFS
+   #+begin_src java :classname 
+     class Solution {
+         public Node connect(Node root) {
+             if (root == null || root.left == null) return root;
+             root.left.next = root.right;
+             if (root.next != null) root.right.next = root.next.left;
+             root.left = connect(root.left);
+             root.right = connect(root.right);
+             return root;
+         }
+     }
+   #+end_src 
+* 118 杨辉三角                                                           :DP:
+  #+begin_src java :classname 
+    class Solution {
+        public List<List<Integer>> generate(int numRows) {
+            List<List<Integer>> res = new ArrayList<>();
+            if (numRows <= 0) return res;
+
+            res.add(new ArrayList<>());
+            res.get(0).add(1);
+            for (int i = 1; i < numRows; i++) {
+                List<Integer> curRow = new ArrayList<>();
+                List<Integer> preRow = res.get(i-1);
+                curRow.add(1);
+                for (int j = 1; j <= i-1; j++) {
+                    curRow.add(preRow.get(j)+preRow.get(j-1));
+                }
+                curRow.add(1);
+                res.add(curRow);
+            }
+            return res;
+        }
+    }
+  #+end_src 
 * 120 三角形最小路径和                                              :DP:数组:
 ** 自底向上
   - 二维
@@ -1219,6 +2080,18 @@
         }
     }
   #+end_src 
+* 122 买卖股票的最佳时机 II                                            :数组:
+  #+begin_src java :classname 
+    class Solution {
+        public int maxProfit(int[] prices) {
+            int res = 0;
+            for (int i = 1; i < prices.length; i++) {
+                if (prices[i] > prices[i-1]) res += prices[i]-prices[i-1];
+            }
+            return res;
+        }
+    }
+  #+end_src 
 * 124 二叉树中的最大路径和                                       :UNRESOLVED:
   #+begin_src java :classname 
     class Solution {
@@ -1227,10 +2100,167 @@
         }
     }
   #+end_src 
+* 125 验证回文子串                                            :双指针:字符串:
+  #+begin_src java :classname 
+    class Solution {
+        public boolean isPalindrome(String s) {
+            if (s == null) return false;
+            if (s.length() <= 1) return true;
+            int left = 0, right = s.length()-1;
+            s = s.toLowerCase();
+            while (left < right) {
+                // while (left < right && !Character.isLetterOrDigit(s.charAt(left))) left++;
+                // while (left < right && !Character.isLetterOrDigit(s.charAt(right))) right--;
+                while (left < right && notNumOrAz(s.charAt(left))) left++;
+                while (left < right && notNumOrAz(s.charAt(right))) right--;
+                if (left >= right) break;
+                if (s.charAt(left) != s.charAt(right)) return false;
+                left++;
+                right--;
+            }
+            return true;
+        }
+
+        private boolean notNumOrAz(char ch) {
+            return ch < '0' || (ch > '9' && ch < 'a') || ch > 'z';
+        }
+    }
+  #+end_src 
+* 127 单词接龙                                           :双向BFS:BFS:字符串:
+** BFS
+*** 单向
+    #+begin_src java :classname 
+      class Solution {
+          public int ladderLength(String beginWord, String endWord, List<String> wordList) {
+              Set<String> wordSet = new HashSet<>(wordList);
+              if (wordSet.size() == 0 || !wordSet.contains(endWord)) return 0;
+              Queue<String> que = new LinkedList<>();
+              que.offer(beginWord);
+              wordSet.remove(beginWord);
+              int wordLen = beginWord.length();
+              int res = 1;
+              while (!que.isEmpty()) {
+                  int size = que.size();
+                  for (int i = 0; i < size; i++) {
+                      String curWord = que.poll();
+                      char[] chs = curWord.toCharArray();
+                      for (int j = 0; j < wordLen; j++) {
+                          char originCh = chs[j];
+                          for (char ch = 'a'; ch <= 'z'; ch++) {
+                              if (originCh == ch) continue;
+                              chs[j] = ch;
+                              // String nextWord = new String(chs);
+                              String nextWord = String.valueOf(chs);
+                              if (wordSet.contains(nextWord)) {
+                                  if (nextWord.equals(endWord)) return res+1;
+                                  que.add(nextWord);
+                                  wordSet.remove(nextWord);
+                              }
+                          }
+                          chs[j] = originCh;
+                      }
+                  }
+                  res++;
+              }
+              return 0;
+          }
+      }
+    #+end_src 
+*** 双向                                                         :UNRESOLVED:
+    #+begin_src java :classname 
+      public class Solution {
+
+          public int ladderLength(String beginWord, String endWord, List<String> wordList) {
+              // 先将 wordList 放到哈希表里，便于判断某个单词是否在 wordList 里
+              Set<String> wordSet = new HashSet<>(wordList);
+              if (wordSet.size() == 0 || !wordSet.contains(endWord)) {
+                  return 0;
+              }
+
+              // 标准写法，总的 visited 数组
+              Set<String> visited = new HashSet<>();
+
+              // 分别用左边和右边扩散的哈希表代替单向 BFS 里的队列
+              Set<String> beginVisited = new HashSet<>();
+              beginVisited.add(beginWord);
+
+              Set<String> endVisited = new HashSet<>();
+              endVisited.add(endWord);
+
+              int len = beginWord.length();
+              int step = 1;
+              while (!beginVisited.isEmpty() && !endVisited.isEmpty()) {
+                  // 优先选择小的哈希表进行扩散，考虑到的情况更少
+                  if (beginVisited.size() > endVisited.size()) {
+                      Set<String> temp = beginVisited;
+                      beginVisited = endVisited;
+                      endVisited = temp;
+                  }
+
+                  // 逻辑到这里，保证 beginVisited 是相对较小的集合
+                  // nextLevelVisited 在扩散完成以后，会成为新的 beginVisited
+                  Set<String> nextLevelVisited = new HashSet<>();
+                  for (String word : beginVisited) {
+                      char[] charArray = word.toCharArray();
+                      for (int i = 0; i < len; i++) {
+                          char originChar = charArray[i];
+                          for (char c = 'a'; c <= 'z'; c++) {
+                              if (originChar == c) {
+                                  continue;
+                              }
+                              charArray[i] = c;
+                              String nextWord = String.valueOf(charArray);
+                              if (wordSet.contains(nextWord)) {
+                                  if (endVisited.contains(nextWord)) {
+                                      return step + 1;
+                                  }
+                                  if (!visited.contains(nextWord)) {
+                                      nextLevelVisited.add(nextWord);
+                                      visited.add(nextWord);
+                                  }
+                              }
+                          }
+                          // 恢复，下次再用
+                          charArray[i] = originChar;
+                      }
+                  }
+
+                  // 这一行代表表示从 begin 这一侧向外扩散了一层
+                  beginVisited = nextLevelVisited;
+                  step++;
+              }
+              return 0;
+          }
+      }
+    #+end_src 
 * 128 最长连续序列                                               :UNRESOLVED:
   #+begin_src java :classname 
     class Solution {
         public int longestConsecutive(int[] nums) {
+
+        }
+    }
+  #+end_src 
+* 130 被围绕的区域
+  #+begin_src java :classname 
+    class Solution {
+        public void solve(char[][] board) {
+
+        }
+    }
+  #+end_src 
+* 131 分割回文串
+  #+begin_src java :classname 
+    class Solution {
+        public List<List<String>> partition(String s) {
+
+        }
+    }
+  #+end_src 
+* 134 加油站
+  #+begin_src java :classname 
+    class Solution {
+        public int canCompleteCircuit(int[] gas, int[] cost) {
 
         }
     }
@@ -1242,6 +2272,41 @@
             int xor = 0;
             for (int i = 0; i < nums.length; i++) xor ^= nums[i];
             return xor;
+        }
+    }
+  #+end_src 
+* 138 复制带随机指针的链表
+  #+begin_src java :classname 
+    class Solution {
+        public Node copyRandomList(Node head) {
+            if (head == null) return null;
+            Node p, cp, cpHead;
+            p = head;
+            while (p != null) {
+                cp = new Node(p.val);
+                cp.next = p.next;
+                p.next = cp;
+                p = cp.next;
+            }
+            cpHead = head.next;
+            p = head;
+            while (p != null) {
+                cp = p.next;
+                if (p.random != null) {
+                    cp.random = p.random.next;
+                }
+                p = cp.next;
+            }
+            p = head;
+            cp = p.next;
+            while (cp.next != null) {
+                p.next = cp.next;
+                p = p.next;
+                cp.next = p.next;
+                cp = cp.next;
+            }
+            p.next = null;
+            return cpHead;
         }
     }
   #+end_src 
@@ -1285,6 +2350,14 @@
      }
    #+end_src 
 ** BFS                                                           :UNRESOLVED:
+* 140 单词拆分 II                                                :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public List<String> wordBreak(String s, List<String> wordDict) {
+
+        }
+    }
+  #+end_src 
 * 141 环形链表                                         :快慢指针:双指针:链表:
   #+begin_src java :classname 
     public class Solution {
@@ -1565,6 +2638,22 @@
          }
      }
    #+end_src 
+* 149 直线上最多的点数                                           :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public int maxPoints(int[][] points) {
+
+        }
+    }
+  #+end_src 
+* 150 逆波兰表达式求值
+  #+begin_src java :classname 
+    class Solution {
+        public int evalRPN(String[] tokens) {
+
+        }
+    }
+  #+end_src 
 * 152 乘积最大子数组                                                   :数组:
   #+begin_src java :classname 
     class Solution {
@@ -1582,7 +2671,7 @@
         }
     }
   #+end_src 
-* 155 最小栈                                                             :栈:
+* 155 最小栈                                                      :辅助栈:栈:
   #+begin_src java :classname 
     class MinStack {
 
@@ -1647,6 +2736,23 @@
         }
     }
   #+end_src 
+* 162 寻找峰值
+  #+begin_src java :classname 
+    class Solution {
+        public int findPeakElement(int[] nums) {
+
+        }
+    }
+  #+end_src 
+* 163 缺失的区间                                                 :UNRESOLVED:
+* 166 分数到小数
+  #+begin_src java :classname 
+    class Solution {
+        public String fractionToDecimal(int numerator, int denominator) {
+
+        }
+    }
+  #+end_src 
 * 169 多数元素 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink21>>][offer39]]                                                :数组:
   #+begin_src java :classname 
     class Solution {
@@ -1662,6 +2768,63 @@
                 else n -= 1;
             }
             return target;
+        }
+    }
+  #+end_src 
+* 171 Excel表序列号
+  #+begin_src java :classname 
+    class Solution {
+        public int titleToNumber(String s) {
+
+        }
+    }
+  #+end_src 
+* 172 阶乘后的零
+  #+begin_src java :classname 
+    class Solution {
+        public int trailingZeroes(int n) {
+
+        }
+    }
+  #+end_src 
+* 179 最大数
+  #+begin_src java :classname 
+    class Solution {
+        public String largestNumber(int[] nums) {
+
+        }
+    }
+  #+end_src 
+* 189 旋转数组
+  #+begin_src java :classname 
+    class Solution {
+        public void rotate(int[] nums, int k) {
+
+        }
+    }
+  #+end_src 
+* 190 颠倒二进制位
+  #+begin_src java :classname 
+    public class Solution {
+        // you need treat n as an unsigned value
+        public int reverseBits(int n) {
+        
+        }
+    }
+  #+end_src 
+* 191 位1的个数                                                      :位运算:
+  #+begin_src java :classname 
+    public class Solution {
+        // you need to treat n as an unsigned value
+        public int hammingWeight(int n) {
+            int res = 0;
+            while (n != 0) {
+                // if ((n&1) == 1) res++;
+                // n >>= 1;
+                res++;
+                n &= (n-1);
+            }
+            return res;
         }
     }
   #+end_src 
@@ -1811,6 +2974,22 @@
          }
      }
    #+end_src 
+* 202 快乐数
+  #+begin_src java :classname 
+    class Solution {
+        public boolean isHappy(int n) {
+        
+        }
+    }
+  #+end_src 
+* 204 计数质数
+  #+begin_src java :classname 
+    class Solution {
+        public int countPrimes(int n) {
+
+        }
+    }
+  #+end_src 
 * 206 反转链表 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink19>>][offer24]]                                            :递归:链表:
   #+begin_src java :classname 
     class Solution {
@@ -1974,6 +3153,23 @@
          }
      }
    #+end_src 
+* 210 课程表 II
+  #+begin_src java :classname 
+    class Solution {
+        public int[] findOrder(int numCourses, int[][] prerequisites) {
+
+        }
+    }
+  #+end_src 
+* 212 单词搜索 II                                                :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public List<String> findWords(char[][] board, String[] words) {
+
+        }
+    }
+  #+end_src 
+* 214 最短回文串                                                 :UNRESOLVED:
 * 215 数组中的第K个最大元素                           :堆排序:快排:排序:数组:
 ** 堆排序
    #+begin_src java :classname 
@@ -2152,6 +3348,22 @@
         }
     }
   #+end_src 
+* 217 存在重复元素
+  #+begin_src java :classname 
+    class Solution {
+        public boolean containsDuplicate(int[] nums) {
+
+        }
+    }
+  #+end_src 
+* 218 天际线问题                                                 :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public List<List<Integer>> getSkyline(int[][] buildings) {
+
+        }
+    }
+  #+end_src 
 * 221 最大正方形                                           :DP:二维数组:数组:
   #+begin_src java :classname 
     class Solution {
@@ -2181,6 +3393,22 @@
             root.left = invertTree(root.right);
             root.right = temp;
             return root;
+        }
+    }
+  #+end_src 
+* 227 基本计算器 II
+  #+begin_src java :classname 
+    class Solution {
+        public int calculate(String s) {
+
+        }
+    }
+  #+end_src 
+* 230 二叉搜索树中第K小的元素
+  #+begin_src java :classname 
+    class Solution {
+        public int kthSmallest(TreeNode root, int k) {
+        
         }
     }
   #+end_src 
@@ -2304,6 +3532,15 @@
          }
      }
    #+end_src 
+* 237 删除链表中的节点                                                 :链表:
+  #+begin_src java :classname 
+    class Solution {
+        public void deleteNode(ListNode node) {
+            node.val = node.next.val;
+            node.next = node.next.next;
+        }
+    }
+  #+end_src 
 * 238 除自身以外数组的乘积 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink23>>][offer66]]                            :对称遍历:数组:
   #+begin_src java :classname 
     class Solution {
@@ -2364,12 +3601,311 @@
         }
     }
   #+end_src 
-* 253 会议室2                                                    :UNRESOLVED:
-* 279 完全平方数
+* 242 有效的字母异位词
   #+begin_src java :classname 
     class Solution {
-        public int numSquares(int n) {
+        public boolean isAnagram(String s, String t) {
 
+        }
+    }
+  #+end_src 
+* 251 展开二维向量                                               :UNRESOLVED:
+* 253 会议室2                                                    :UNRESOLVED:
+* 268 缺失数字
+  #+begin_src java :classname 
+    class Solution {
+        public int missingNumber(int[] nums) {
+
+        }
+    }
+  #+end_src 
+* 269 火星词典                                                   :UNRESOLVED:
+* 277 搜寻名人                                                   :UNRESOLVED:
+* 279 完全平方数 [[ilink2][lc322]] [[ilink3][lc337]]                      :贪婪:DP:BFS:DFS:回溯:递归:
+** DFS回溯
+   - 暴力超时
+     #+begin_src java :classname 
+       class Solution {
+           public int numSquares(int n) {
+               return helper(n);
+           }
+
+           private int helper(int n) {
+               if (n == 0) return 0;
+               int count = Integer.MAX_VALUE;
+               for (int i = 1; i*i <= n; i++) {
+                   count = Math.min(count, helper(n-i*i)+1);
+               }
+               return count;
+           }
+       }
+     #+end_src
+   - 记忆化
+     #+begin_src java :classname 
+       class Solution {
+           public int numSquares(int n) {
+               int[] memo = new int[n+1];
+               return helper(n, memo);
+           }
+
+           private int helper(int n, int[] memo) {
+               if (memo[n] != 0) return memo[n];
+               if (n == 0) return 0;
+               int count = Integer.MAX_VALUE;
+               for (int i = 1; i*i <= n; i++) {
+                   count = Math.min(count, helper(n-i*i, memo)+1);
+               }
+               memo[n] = count;
+               return count;
+           }
+       }
+     #+end_src 
+** BFS
+   - 暴力
+     #+begin_src java :classname 
+       class Solution {
+           public int numSquares(int n) {
+               Queue<Integer> que = new LinkedList<>();
+               int level = 0;
+               que.offer(n);
+               while (!que.isEmpty()) {
+                   int size = que.size();
+                   level += 1;
+                   for (int i = 0; i < size; i++) {
+                       int cur = que.poll();
+                       for (int j = 1; j*j <= cur; j++) {
+                           int remain = cur - j*j;
+                           if (remain == 0) return level;
+                           if (remain > 0) que.offer(remain);
+                       }
+                   }
+               }
+               return -1;
+           }
+       }
+     #+end_src
+   - 去重
+     #+begin_src java :classname 
+       class Solution {
+           public int numSquares(int n) {
+               Queue<Integer> que = new LinkedList<>();
+               Set<Integer> visited = new HashSet<>();
+               int level = 0;
+               que.offer(n);
+               while (!que.isEmpty()) {
+                   int size = que.size();
+                   level += 1;
+                   for (int i = 0; i < size; i++) {
+                       int cur = que.poll();
+                       visited.add(cur);
+                       for (int j = 1; j*j <= cur; j++) {
+                           int remain = cur - j*j;
+                           if (remain == 0) return level;
+                           if (!visited.contains(remain)) {
+                               visited.add(remain);
+                               que.offer(remain);
+                           }
+                       }
+                   }
+               }
+               return level;
+           }
+       }
+     #+end_src
+** DP
+   #+begin_src java :classname 
+     class Solution {
+         public int numSquares(int n) {
+             int[] dp = new int[n+1];
+             for (int i = 1; i <= n; i++) {
+                 dp[i] = i;
+                 for (int j = 1; j*j <= i; j++) {
+                     dp[i] = Math.min(dp[i], dp[i-j*j]+1);
+                 }
+             }
+             return dp[n];
+         }
+     }
+   #+end_src 
+** 贪婪枚举
+   #+begin_src java :classname 
+     class Solution {
+         public int numSquares(int n) {
+             Set<Integer> square_nums = new HashSet<>();
+             for (int i = 1; i*i <= n; i++) square_nums.add(i*i);
+             int count = 1;
+             for (; count <= n; count++) {
+                 if (helper(n, count, square_nums)) break;
+             }
+             return count;
+         }
+
+         private boolean helper(int n, int count, Set<Integer> square_nums) {
+             if (n <= 0) return false;
+             if (count == 1) return square_nums.contains(n);
+             for (int i = 1; i*i <= n; i++) {
+                 if (helper(n-i*i, count-1, square_nums)) return true;
+             }
+             return false;
+         }
+     }
+   #+end_src
+** 数学定理                                                      :UNRESOLVED:
+* 283 移动0                                                :快排:双指针:数组:
+** 暴力
+   #+begin_src java :classname 
+     class Solution {
+         public void moveZeroes(int[] nums) {
+             if (nums == null || nums.length == 0) return;
+             int len = nums.length, left = 0, right = len-1;
+             while (true) {
+                 while (left < right && nums[left] != 0) left += 1;
+                 while (left < right && nums[right] == 0) right -= 1;
+                 if (right <= left) break;
+                 for (int i = 0; i < right-left; i++) swap(nums, left+i, left+i+1);
+             }
+         }
+
+         private void swap(int[] nums, int i, int j) {
+             int temp = nums[i];
+             nums[i] = nums[j];
+             nums[j] = temp;
+         }
+     }
+   #+end_src 
+** 直接赋值
+   #+begin_src java :classname 
+     class Solution {
+         public void moveZeroes(int[] nums) {
+             if (nums == null || nums.length == 0) return;
+             int len = nums.length, index = 0;
+             for (int num : nums) {
+                 if (num != 0) nums[index++] = num;
+             }
+             for (int i = index; i < len; i++) nums[i] = 0;
+         }
+     }
+   #+end_src 
+** 双指针(快排)
+   #+begin_src java :classname 
+     class Solution {
+         public void moveZeroes(int[] nums) {
+             if (nums == null || nums.length == 0) return;
+             int len = nums.length, left = 0;
+             for (int i = 0; i < len; i++) {
+                 if (nums[i] != 0) {
+                     if (left != i) swap(nums, i, left);
+                     left += 1;
+                 }
+             }
+         }
+
+         private void swap(int[] nums, int i, int j) {
+             int temp = nums[i];
+             nums[i] = nums[j];
+             nums[j] = temp;
+         }
+     }
+   #+end_src 
+* 285 二叉搜索树中的顺序后继                                     :UNRESOLVED:
+* 287 寻找重复数                         :快慢指针:双指针:二分查找:查找:数组:
+** 二分法 [[file:~/csnds/Dropbox/orglife/offer.org::<<ilink1>>][offer3]]
+   #+begin_src java :classname 
+     class Solution {
+         public int findDuplicate(int[] nums) {
+             int len = nums.lengh;
+             int start = 1, end = len-1;
+             while (start < end) {
+                 int count = 0, mid = (start+end) >> 1;
+                 for (int num : nums) {
+                     if (num >= start && num <= mid) count += 1;
+                     // if (num <= mid) count += 1;
+                 }
+                 if (count > mid-start+1) end = mid;
+                 // if (count > mid) end = mid;
+                 else start = mid + 1;
+             }
+             return start;
+         }
+     }
+   #+end_src 
+** 快慢指针                                                      :UNRESOLVED:
+   #+begin_src java :classname 
+     class Solution {
+         public int findDuplicate(int[] nums) {
+             int slow = nums[0], fast = nums[slow];
+             while (slow != fast) {
+                 slow = nums[slow];
+                 fast = nums[nums[fast]];
+             }
+             slow = 0;
+             while (slow != fast) {
+                 slow = nums[slow];
+                 fast = nums[fast];
+             }
+             return slow;
+         }
+     }
+   #+end_src 
+* 289 生命游戏
+  #+begin_src java :classname 
+    class Solution {
+        public void gameOfLife(int[][] board) {
+
+        }
+    }
+  #+end_src 
+* 295 数据流中的中位数                                           :UNRESOLVED:
+  #+begin_src java :classname 
+    class MedianFinder {
+
+        /** initialize your data structure here. */
+        public MedianFinder() {
+
+        }
+    
+        public void addNum(int num) {
+
+        }
+    
+        public double findMedian() {
+
+        }
+    }
+  #+end_src 
+* 297 二叉树的序列化与反序列化 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink26>>][offer37]] :字符串:层序遍历:前序遍历:递归:二叉树:树:
+  #+begin_src java :classname 
+    public class Codec {
+
+        // Encodes a tree to a single string.
+        public String serialize(TreeNode root) {
+            StringBuilder sb = new StringBuilder();
+            if (root != null) {
+                sb.append(root.val+",");
+                sb.append(serialize(root.left));
+                sb.append(serialize(root.right));
+            } else sb.append("null,");
+            // sb.deleteCharAt(sb.length()-1); 不能加这句
+            return sb.toString();
+        }
+
+        // Decodes your encoded data to tree.
+        public TreeNode deserialize(String data) {
+            String[] strs = data.split(",");
+            return deserializeHelper(strs, new int[] {-1});
+        }
+
+        private TreeNode deserializeHelper(String[] strs, int[] index) {
+            index[0] += 1;
+            TreeNode root = null;
+            String s = strs[index[0]];
+            if (!s.equals("null")) {
+                root = new TreeNode(Integer.parseInt(s)); //更快
+                // root = new TreeNode(Integer.valueOf(s));
+                root.left = deserializeHelper(strs, index);
+                root.right = deserializeHelper(strs, index);
+            }
+            return root;
         }
     }
   #+end_src 
@@ -2395,6 +3931,1262 @@
      }
    #+end_src 
 ** 二分查找                                                      :UNRESOLVED:
+* 301 删除无用的括号                                             :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public List<String> removeInvalidParentheses(String s) {
+
+        }
+    }
+  #+end_src 
+* 308 二维区域和检索-可变                                        :UNRESOLVED:
+* 309 最佳买卖股票时机含冷冻期 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink27>>][offer63]]                              :DP:数组:
+** DP
+   - 未优化空间
+     #+begin_src java :classname 
+       class Solution {
+           public int maxProfit(int[] prices) {
+               int len = prices.length;
+               if (len <= 0) return 0;
+               int[][] dp = new int[len][3];
+               dp[0][0] = 0;
+               dp[0][1] = -prices[0];
+               dp[0][2] = 0;
+
+               for (int i = 1; i < len; i++) {
+                   dp[i][0] = Math.max(dp[i-1][0], dp[i-1][2]);
+                   dp[i][1] = Math.max(dp[i-1][1], dp[i-1][0]-prices[i]);
+                   dp[i][2] = dp[i-1][1] + prices[i];
+               }
+
+               return Math.max(dp[len-1][0], dp[len-1][2]);
+           }
+       }
+     #+end_src 
+   - 优化空间(滚动数组)
+     #+begin_src java :classname 
+       class Solution {
+           public int maxProfit(int[] prices) {
+               int len = prices.length;
+               if (len <= 0) return 0;
+               int[] dp = new int[3];
+               dp[0] = 0;
+               dp[1] = -prices[0];
+               dp[2] = 0;
+               int pre0 = dp[0], pre1 = dp[1];
+
+               for (int i = 1; i < len; i++) {
+                   dp[0] = Math.max(pre0, dp[2]);
+                   dp[1] = Math.max(pre1, pre0-prices[i]);
+                   dp[2] = pre1 + prices[i];
+                   pre0 = dp[0];
+                   pre1 = dp[1];
+               }
+
+               return Math.max(dp[0], dp[2]);
+           }
+       }
+     #+end_src 
+* 312 戳气球                                                     :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public int maxCoins(int[] nums) {
+
+        }
+    }
+  #+end_src 
+* 315 计算右侧小于当前元素的个数                                 :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public List<Integer> countSmaller(int[] nums) {
+
+        }
+    }
+  #+end_src 
+* 322 零钱兑换 <<ilink2>>                         :贪婪:DP:BFS:DFS:递归:数组:
+** BFS
+   #+begin_src java :classname 
+     class Solution {
+         public int coinChange(int[] coins, int amount) {
+             if (amount == 0) return 0;
+             Queue<Integer> que = new LinkedList<>();
+             boolean[] tovisit = new boolean[amount+1];
+             Arrays.sort(coins);
+             tovisit[amount] = true;
+             que.offer(amount);
+             int level = 0;
+             while (!que.isEmpty()) {
+                 level += 1;
+                 int size = que.size();
+                 for (int i = 0; i < size; i++) {
+                     int cur = que.poll();
+                     for (int coin : coins) {
+                         int next = cur - coin;
+                         if (next == 0) return level;
+                         if (next < 0) break;
+                         if (tovisit[next]) continue;
+                         tovisit[next] = true;
+                         que.offer(next);
+                     }
+                 }
+             }
+             return -1;
+         }
+     }
+   #+end_src 
+** DFS
+*** 普通
+    #+begin_src java :classname 
+      class Solution {
+          public int coinChange(int[] coins, int amount) {
+              if (amount == 0) return 0;
+              Arrays.sort(coins);
+              int[] memo = new int[amount+1];
+              Arrays.fill(memo, -2);
+              return helper(coins, amount, memo);
+          }
+
+          private int helper(int[] coins, int amount, int[] memo) {
+              if (amount == 0) return 0;
+              if (memo[amount] != -2) return memo[amount];
+              int minCount = Integer.MAX_VALUE;
+              for (int coin : coins) {
+                  int next = amount - coin;
+                  if (next < 0) break;
+                  int nextMin = helper(coins, next, memo);
+                  if (nextMin == -1) continue;
+                  minCount = Math.min(minCount, nextMin+1);
+              }
+              memo[amount] = minCount == Integer.MAX_VALUE ? -1 : minCount;
+              return memo[amount];
+          }
+      }
+    #+end_src 
+*** 贪婪
+    #+begin_src java :classname 
+      class Solution {
+          int res = Integer.MAX_VALUE;
+          public int coinChange(int[] coins, int amount) {
+              Arrays.sort(coins);
+              dfs(coins, coins.length-1, amount, 0);
+              return res == Integer.MAX_VALUE ? -1 : res;
+          }
+          private void dfs(int[] coins, int index, int amount, int usedCoins) {
+              if (index < 0) return;
+              for (int i = amount/coins[index]; i >= 0; i--) {
+                  int remain = amount - i*coins[index];
+                  int curUsedCoins = i + usedCoins;
+                  if (remain == 0) {
+                      res = Math.min(res, curUsedCoins);
+                      break;
+                  }
+                  if (curUsedCoins+1 > res) break;
+                  dfs(coins, index-1, remain, curUsedCoins);
+              }
+          }
+      }
+    #+end_src 
+** DP                                                            :UNRESOLVED:
+*** 普通DP
+    #+begin_src java :classname 
+      class Solution {
+          public int coinChange(int[] coins, int amount) {
+              if (amount == 0) return 0;
+              int[] dp = new int[amount+1];
+              Arrays.sort(coins);
+              Arrays.fill(dp, amount+1);
+              dp[0] = 0;
+              for (int i = 1; i <= amount; i++) {
+                  for (int coin : coins) {
+                      if (i - coin < 0) break;
+                      dp[i] = Math.min(dp[i], dp[i-coin]+1);
+                  }
+              }
+              return dp[amount] == amount+1 ? -1 : dp[amount];
+          }
+      }
+    #+end_src
+*** 背包问题                                                     :UNRESOLVED:
+    #+begin_src java :classname 
+      import java.util.Arrays;
+
+      public class Solution {
+
+          public int coinChange(int[] coins, int amount) {
+              int[] dp = new int[amount + 1];
+              Arrays.fill(dp, amount + 1);
+              dp[0] = 0;
+
+              for (int coin : coins) {
+                  for (int i = coin; i <= amount; i++) {
+                      dp[i] = Math.min(dp[i], dp[i - coin] + 1);
+                  }
+              }
+
+              if (dp[amount] == amount + 1) {
+                  dp[amount] = -1;
+              }
+              return dp[amount];
+          }
+      }
+    #+end_src 
+* 324 摆动顺序 II
+  #+begin_src java :classname 
+    class Solution {
+        public void wiggleSort(int[] nums) {
+
+        }
+    }
+  #+end_src 
+* 326 3的幂                                                            :递归:
+  #+begin_src java :classname 
+    class Solution {
+        public boolean isPowerOfThree(int n) {
+            if (n <= 0) return false;
+            if (n == 1 || n == 3) return true;
+            if (n % 3 != 0) return false;
+            return isPowerOfThree(n/3);
+        }
+    }
+  #+end_src 
+* 328 奇偶链表
+  #+begin_src java :classname 
+    class Solution {
+        public ListNode oddEvenList(ListNode head) {
+        
+        }
+    }
+  #+end_src 
+* 329 矩阵中的最长递增路径                                       :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public int longestIncreasingPath(int[][] matrix) {
+
+        }
+    }
+  #+end_src 
+* 334 递增的三元子序列
+  #+begin_src java :classname 
+    class Solution {
+        public boolean increasingTriplet(int[] nums) {
+
+        }
+    }
+  #+end_src 
+* 337 打家劫舍3 <<ilink3>>                            :DP:DFS:递归:二叉树:树:
+** 暴力递归
+   #+begin_src java :classname 
+     class Solution {
+         public int rob(TreeNode root) {
+             if (root == null) return 0;
+             int money = root.val;
+             if (root.left != null) money += rob(root.left.left) + rob(root.left.right);
+             if (root.right != null) money += rob(root.right.left) + rob(root.right.right);
+             return Math.max(money, rob(root.left)+rob(root.right));
+         }
+     }
+   #+end_src 
+** 记忆化
+   #+begin_src java :classname 
+     class Solution {
+         public int rob(TreeNode root) {
+             Map<TreeNode, Integer> memo = new HashMap<>();
+             return helper(root, memo);
+         }
+
+         private int helper(TreeNode root, Map<TreeNode, Integer> memo) {
+             if (root == null) return 0;
+             if (memo.containsKey(root)) return memo.get(root);
+             int money = root.val;
+             if (root.left != null) money += helper(root.left.left, memo) + helper(root.left.right, memo);
+             if (root.right != null) money += helper(root.right.left, memo) + helper(root.right.right, memo);
+             money = Math.max(money, helper(root.left, memo)+helper(root.right, memo));
+             memo.put(root, money);
+             return money;
+         }
+     }
+   #+end_src 
+** DP
+   #+begin_src java :classname 
+     class Solution {
+
+         public int rob(TreeNode root) {
+             int[] res = helper(root);
+             return Math.max(res[0], res[1]);
+         }
+
+         private int[] helper(TreeNode root) {
+             if (root == null) return new int[2];
+             int[] res = new int[2];
+             int[] left = helper(root.left);
+             int[] right = helper(root.right);
+             res[0] = Math.max(left[0], left[1]) + Math.max(right[0], right[1]);
+             res[1] = root.val + left[0] + right[0];
+             return res;
+         }
+
+     }
+   #+end_src 
+* 338 比特位计数                                                  :DP:位运算:
+** 暴力
+   #+begin_src java :classname 
+     class Solution {
+         public int[] countBits(int num) {
+             int[] res = new int[num+1];
+             for (int i = 1; i <= num; i++) {
+                 int j = 1, k = 0;
+                 while (((i-1)&j) != 0) {
+                     j = j << 1;
+                     k += 1;
+                 }
+                 res[i] = res[i-1] + 1 - k;
+             }
+             return res;
+         }
+     }
+   #+end_src 
+** DP
+   #+begin_src java :classname 
+     class Solution {
+         public int[] countBits(int num) {
+             int[] res = new int[num+1];
+             for (int i = 1; i <= num; i++) {
+                 res[i] = res[i>>1] + (i&1);
+                 // res[i] = res[i&(i-1)] + 1;
+             }
+             return res;
+         }
+     }
+   #+end_src 
+* 340 之多包含K个不同字符的最长子串                              :UNRESOLVED:
+* 341 扁平化嵌套列表迭代器
+  #+begin_src java :classname 
+    public class NestedIterator implements Iterator<Integer> {
+
+        public NestedIterator(List<NestedInteger> nestedList) {
+        
+        }
+
+        @Override
+        public Integer next() {
+        
+        }
+
+        @Override
+        public boolean hasNext() {
+        
+        }
+    }
+  #+end_src 
+* 344 反转字符串                                                :双指针:数组:
+  #+begin_src java :classname 
+    class Solution {
+        public void reverseString(char[] s) {
+            int left = 0, right = s.length-1;
+            while (left < right) {
+                char tmp = s[left];
+                s[left] = s[right];
+                s[right] = tmp;
+                left++;
+                right--;
+            }
+        }
+    }
+  #+end_src 
+* 347 前K个高频元素                               :桶排序:小跟堆:堆排序:排序:
+** 堆排序
+   #+begin_src java :classname 
+     class Solution {
+         public int[] topKFrequent(int[] nums, int k) {
+             Map<Integer, Integer> map = new HashMap<>();
+             for (int num : nums) {
+                 map.put(num, map.getOrDefault(num, 0) + 1);
+             }
+
+             // Comparator<Integer> topKComparator = (Integer n1, Integer n2) -> {
+             //     return map.get(n1) - map.get(n2);
+             // };
+
+             // PriorityQueue<Integer> pq = new PriorityQueue(topKComparator);
+
+             // PriorityQueue<Integer> pq = new PriorityQueue((n1, n2) -> map.get(n1) - map.get(n2));
+             PriorityQueue<Integer> pq = new PriorityQueue(new Comparator<Integer>() {
+                     @Override
+                     public int compare(Integer n1, Integer n2) {
+                         return map.get(n1) - map.get(n2);
+                     }
+                 });
+
+             for (int i : map.keySet()) {
+                 pq.offer(i);
+                 if (pq.size() > k) pq.poll();
+             }
+
+             int[] res = new int[k];
+             for (int i = 0; i < k; i++) res[i] = pq.poll();
+             return res;
+         }
+     }
+   #+end_src 
+** 桶排序                                                        :UNRESOLVED:
+   #+begin_src java :classname 
+     //基于桶排序求解「前 K 个高频元素」
+     class Solution {
+         public List<Integer> topKFrequent(int[] nums, int k) {
+             List<Integer> res = new ArrayList();
+             // 使用字典，统计每个元素出现的次数，元素为键，元素出现的次数为值
+             HashMap<Integer,Integer> map = new HashMap();
+             for(int num : nums){
+                 if (map.containsKey(num)) {
+                    map.put(num, map.get(num) + 1);
+                  } else {
+                     map.put(num, 1);
+                  }
+             }
+        
+             //桶排序
+             //将频率作为数组下标，对于出现频率不同的数字集合，存入对应的数组下标
+             List<Integer>[] list = new List[nums.length+1];
+             for(int key : map.keySet()){
+                 // 获取出现的次数作为下标
+                 int i = map.get(key);
+                 if(list[i] == null){
+                    list[i] = new ArrayList();
+                 } 
+                 list[i].add(key);
+             }
+        
+             // 倒序遍历数组获取出现顺序从大到小的排列
+             for(int i = list.length - 1;i >= 0 && res.size() < k;i--){
+                 if(list[i] == null) continue;
+                 res.addAll(list[i]);
+             }
+             return res;
+         }
+     }
+   #+end_src 
+* 348 判定井字棋胜负                                             :UNRESOLVED:
+* 350 两个数组的交集 II
+  #+begin_src java :classname 
+    class Solution {
+        public int[] intersect(int[] nums1, int[] nums2) {
+
+        }
+    }
+  #+end_src 
+* 371 两整数之和                                                     :位运算:
+  #+begin_src java :classname 
+    class Solution {
+        public int getSum(int a, int b) {
+            while (b != 0) {
+                int tmp = a ^ b;
+                b = (a&b) << 1;
+                a = tmp;
+            }
+            return a;
+        }
+    }
+  #+end_src 
+* 378 有序矩阵中第K小的元素
+  #+begin_src java :classname 
+    class Solution {
+        public int kthSmallest(int[][] matrix, int k) {
+
+        }
+    }
+  #+end_src 
+* 380 常数时间插入、删除和获取随机元素
+  #+begin_src java :classname 
+    class RandomizedSet {
+
+        /** Initialize your data structure here. */
+        public RandomizedSet() {
+
+        }
+    
+        /** Inserts a value to the set. Returns true if the set did not already contain the specified element. */
+        public boolean insert(int val) {
+
+        }
+    
+        /** Removes a value from the set. Returns true if the set contained the specified element. */
+        public boolean remove(int val) {
+
+        }
+    
+        /** Get a random element from the set. */
+        public int getRandom() {
+
+        }
+    }
+  #+end_src 
+* 384 打乱数组
+  #+begin_src java :classname 
+    class Solution {
+
+        public Solution(int[] nums) {
+
+        }
+    
+        /** Resets the array to its original configuration and return it. */
+        public int[] reset() {
+
+        }
+    
+        /** Returns a random shuffling of the array. */
+        public int[] shuffle() {
+
+        }
+    }
+  #+end_src 
+* 387 字符串中第一个唯一字符
+  #+begin_src java :classname 
+    class Solution {
+        public int firstUniqChar(String s) {
+            int[] 
+        }
+    }
+  #+end_src 
+* 394 字符串解码                                         :递归:辅助栈:字符串:
+** 辅助栈
+   #+begin_src java :classname 
+     class Solution {
+         public String decodeString(String s) {
+             StringBuilder res = new StringBuilder();
+             int multi = 0;
+             Stack<Integer> stack_multi = new Stack<>();
+             Stack<String> stack_res = new Stack<>();
+             for (char c : s.toCharArray()) {
+                 if (c == '[') {
+                     stack_multi.push(multi);
+                     multi = 0;
+                     stack_res.push(res.toString());
+                     res = new StringBuilder();
+                 } else if (c == ']') {
+                     int cur_multi = stack_multi.pop();
+                     StringBuilder tmp = new StringBuilder();
+                     for (int i = 0; i < cur_multi; i++) {
+                         tmp.append(res);
+                     }
+                     res = new StringBuilder(stack_res.pop()+tmp);
+                 } else if (c >= '0' && c <= '9') multi = multi*10 + c - '0';
+                 else res.append(c);
+             }
+             return res.toString();
+         }
+     }
+   #+end_src 
+** 递归
+   - 辅助成员变量
+     #+begin_src java :classname 
+       class Solution {
+           private int index = 0;
+
+           public String decodeString(String s) {
+               return helper(s);
+           }
+
+           private String helper(String s) {
+               StringBuilder res = new StringBuilder();
+               int multi = 0;
+               while (index < s.length()) {
+                   char cur = s.charAt(index);
+                   if (cur >= '0' && cur <= '9') multi = multi*10 + cur - '0';
+                   else if (cur == '[') {
+                       index += 1;
+                       String tmp = helper(s);
+                       while (multi > 0) {
+                           res.append(tmp);
+                           multi--;
+                       }
+                   } else if (cur == ']') {
+                       return res.toString();
+                   } else res.append(String.valueOf(cur));
+                   index++;
+               }
+               return res.toString();
+           }
+       }
+     #+end_src
+   - 无成员变量
+     #+begin_src java :classname 
+       class Solution {
+           public String decodeString(String s) {
+               return helper(s, 0)[0];
+           }
+
+           private String[] helper(String s, int i) {
+               StringBuilder res = new StringBuilder();
+               int multi = 0;
+               while (i < s.length()) {
+                   char cur = s.charAt(i);
+                   if (cur >= '0' && cur <= '9') multi = multi*10 + cur - '0';
+                   else if (cur == '[') {
+                       String[] tmp = helper(s, i+1);
+                       i = Integer.parseInt(tmp[0]);
+                       while (multi > 0) {
+                           res.append(tmp[1]);
+                           multi--;
+                       }
+                   } else if (cur == ']') {
+                       return new String[] {String.valueOf(i), res.toString()};
+                   } else res.append(String.valueOf(cur));
+                   i++;
+               }
+               return new String[] {res.toString()};
+           }
+       }
+     #+end_src 
+* 395 至少有K个重复字符的最长子串
+  #+begin_src java :classname 
+    class Solution {
+        public int longestSubstring(String s, int k) {
+
+        }
+    }
+  #+end_src 
+* 399 除法求值                                       :图:BFS:DFS:递归:并查集:
+** 并查集 
+   #+begin_src java :classname 
+     class Solution {
+         private Map<String, String> parents = new HashMap<>();
+         private Map<String, Double> values = new HashMap<>();
+         public double[] calcEquation(List<List<String>> equations, double[] values, List<List<String>> queries) {
+             double[] res = new double[queries.size()];
+             Arrays.fill(res, -1);
+             for (int i = 0; i < values.length; i++) {
+                 List<String> equation = equations.get(i);
+                 String parent = equation.get(0);
+                 String child = equation.get(1);
+                 double val = values[i];
+                 union(parent, child, val);
+             }
+
+             for (int i = 0; i < res.length; i++) {
+                 List<String> query = queries.get(i);
+                 String parent = query.get(0);
+                 String child = query.get(1);
+                 if (parents.containsKey(parent) &&
+                     parents.containsKey(child) &&
+                     root(parent).equals(root(child))) {
+                     res[i] = pm(child) / pm(parent);
+                 }
+             }
+             return res;
+         }
+
+         private void union(String parent, String child, double value) {
+             add(parent);
+             add(child);
+             String rp = root(parent);
+             String rc = root(child);
+             if (!rp.equals(rc)) {
+                 parents.put(rc, rp);
+                 values.put(rc, value*pm(parent)/pm(child));
+             }
+         }
+
+         private String root(String child) {
+             // while (!parents.get(child).equals(child)) child = parents.get(child);
+             // return child;
+             return parents.get(child).equals(child) ? child : root(parents.get(child));
+         }
+
+         private void add(String child) {
+             if (!parents.containsKey(child)) {
+                 parents.put(child, child);
+                 values.put(child,1.0);
+             }
+         }
+
+         private double pm(String child) {
+             // double val = 1;
+             // String rc = root(child);
+             // while (!rc.equals(child)) {
+             //     val *= values.get(child);
+             //     child = parents.get(child);
+             // }
+             // return val;
+
+             return root(child).equals(child) ? 1 : values.get(child) * pm(parents.get(child));
+         }
+     }
+   #+end_src 
+** DFS                                                           :UNRESOLVED:
+   #+begin_src java :classname 
+     class Solution {
+
+         HashMap<String, List<Edge>> mEdges = new HashMap<>();
+         double[] mRes;
+
+         public double[] calcEquation(List<List<String>> equations, double[] values, List<List<String>> queries) {
+             // 1. 构建加权有向图
+             for (int i = 0; i < equations.size(); i++) {
+                 List<String> edge = equations.get(i);
+                 String v1 = edge.get(0);
+                 String v2 = edge.get(1);
+                 double val = values[i];
+                 // 添加到 v1->v2 的边
+                 List<Edge> v1Edges = mEdges.get(v1);
+                 if (v1Edges == null) {
+                     v1Edges = new ArrayList<>();
+                     mEdges.put(v1, v1Edges);
+                 }
+                 v1Edges.add(new Edge(v1, v2, val));
+                 // 添加到 v2->v1 的边
+                 List<Edge> v2Edges = mEdges.get(v2);
+                 if (v2Edges == null) {
+                     v2Edges = new ArrayList<>();
+                     mEdges.put(v2, v2Edges);
+                 }
+                 v2Edges.add(new Edge(v2, v1, 1.0 / val));
+             }
+
+             // 2. dfs 搜索数据
+             mRes = new double[queries.size()];
+             List<String> visited = new ArrayList<>();
+             for (int i = 0; i < queries.size(); i++) {
+                 List<String> query = queries.get(i);
+                 String start = query.get(0);
+                 String dest = query.get(1);
+                 visited.clear();
+                 mRes[i] = dfs(start, dest, visited);
+             }
+             return mRes;
+         }
+
+         private double dfs(String start, String dest, List<String> visited) {
+             // 验证是否存顶点
+             if (!mEdges.containsKey(start) || !mEdges.containsKey(dest)) {
+                 return -1.0;
+             }
+             visited.add(start);
+             if (start.equals(dest)) {
+                 return 1.0;
+             }
+             // 获取 start 顶点的边
+             List<Edge> startEdges = mEdges.get(start);
+             if (startEdges == null || startEdges.isEmpty()) {
+                 return -1.0;
+             }
+             // 深度优先遍历集合
+             for (Edge edge : startEdges) {
+                 if (visited.contains(edge.to)) {
+                     continue;
+                 }
+                 double res = dfs(edge.to, dest, visited);
+                 if (res != -1.0) {
+                     return res * edge.val;
+                 }
+             }
+             return -1.0;
+         }
+
+         class Edge {
+             String from;
+             String to;
+             double val;
+
+             public Edge(String from, String to, double val) {
+                 this.from = from;
+                 this.to = to;
+                 this.val = val;
+             }
+         }
+
+     }
+   #+end_src 
+** BFS                                                           :UNRESOLVED:
+   #+begin_src java :classname 
+     class Solution {
+         //双向路径
+         private Map<String, Map<String, Double>> cache = new HashMap<String, Map<String, Double>>();
+
+         class Strdou {//放入队列的元素，
+             public String x;    //除数
+             public Double val;  //当前值
+             public Strdou(String xx, Double cc) {
+                 x = xx;
+                 val = cc;
+             }
+         }
+
+         private double BFS(List<String> query)
+         {
+             if (!cache.containsKey(query.get(0))||!cache.containsKey(query.get(1))) { //不可达
+                 return -1.0;
+             }
+             if (query.get(0).equals(query.get(1))) {    //相等返回1
+                 return 1.0;
+             }
+             Queue<Strdou> que = new LinkedList<Strdou>();
+             Set<String> paths = new HashSet<String>();  //记录已经走过的点
+             que.offer(new Strdou(query.get(0), 1.0));
+             paths.add(query.get(0));
+
+             while (!que.isEmpty()) {
+                 Strdou s = que.poll();
+                 Map<String, Double> c = cache.get(s.x);
+                 //从key点开始遍历周围的点
+                 for (String key : c.keySet()) {
+                     if (paths.contains(key)) {
+                         continue;
+                     }
+                     paths.add(key);//标记走过
+                     que.offer(new Strdou(key, s.val * c.get(key)));
+                     if (key.equals(query.get(1))) {
+                         return s.val * c.get(key);
+                     }
+                 }
+             }
+             return -1.0;
+
+
+         }
+
+         public double[] calcEquation(List<List<String>> equations, double[] values, List<List<String>> queries) {
+             if (queries.size() == 0) {  //别算了
+                 return null;
+             }
+             for (int i = 0; i < equations.size(); i++) {
+                 String first = equations.get(i).get(0);
+                 String second = equations.get(i).get(1);
+                 //保存正向的路径    a / b
+                 if (cache.containsKey(first)) {
+                     cache.get(first).put(second, values[i]);
+                 }
+                 else {
+                     Map<String, Double> c = new HashMap<String, Double>();
+                     c.put(second, values[i]);
+                     cache.put(first, c);
+                 }
+                 //保存逆向的路径    b / a
+                 if (cache.containsKey(second)) {
+                     cache.get(second).put(first, 1.0 / values[i]);
+                 }
+                 else {
+                     Map<String, Double> c = new HashMap<String, Double>();
+                     c.put(first, 1.0 / values[i]);
+                     cache.put(second, c);
+                 }
+             }
+
+             double[] res = new double[queries.size()];
+
+             for (int i = 0; i < res.length; i++) {
+                 res[i] = BFS(queries.get(i));
+             }
+             return res;
+         }
+     }
+   #+end_src 
+** Floyd-Warsheall                                               :UNRESOLVED:
+   #+begin_src java :classname 
+     class Solution {
+         public double[] calcEquation(List<List<String>> equations, double[] values, List<List<String>> queries) {
+             final double INF=Integer.MAX_VALUE;
+             int len=values.length,max=0;
+             HashMap<String, Integer> hash = new HashMap<String, Integer>();
+             for (int i=0;i<len;i++){
+                 String c1=equations.get(i).get(0),c2=equations.get(i).get(1);
+                 if(!hash.containsKey(c1))
+                     hash.put(c1, max++);
+                 if(!hash.containsKey(c2))
+                     hash.put(c2, max++);
+             }
+             double[][] map =new double[max][max];
+             for (int i=0;i<len;i++) {
+                 int c1=hash.get(equations.get(i).get(0)),c2=hash.get(equations.get(i).get(1));
+                 map[c1][c2]=values[i];
+                 map[c2][c1]=1/values[i];
+             } 
+             for (int k = 0; k < max; k++) {
+                 for (int i = 0; i < max; i++) {
+                     for (int j = 0; j < max; j++) {
+                         if(i!=j&&map[i][j]==0&&map[k][j]!=0&&map[i][k]!=0)
+                             map[i][j]=map[k][j]*map[i][k];
+                     }
+                 }
+             }
+           
+             double[] arr=new double[queries.size()];
+             int index=0;
+             for (List<String> ds : queries) {
+                 if(!hash.containsKey(ds.get(0))||!hash.containsKey(ds.get(1)))
+                     {
+                         arr[index++]=-1;continue;
+                     }
+                 int c1=hash.get(ds.get(0));
+                 int c2=hash.get(ds.get(1));
+                 if(c1==c2)
+                     arr[index++]=1;
+                 else if(map[c1][c2]==0)
+                     arr[index++]=-1;
+                 else
+                     arr[index++]=map[c1][c2];
+             }
+           
+             return arr;
+         }
+     }
+   #+end_src 
+* 406 根据身高重建队列                              :贪婪:排序:二维数组:数组:
+** 贪婪
+   #+begin_src java :classname 
+     class Solution {
+         public int[][] reconstructQueue(int[][] people) {
+             // Arrays.sort(people, (o1, o2) -> o1[0] == o2[0] ? o1[1] - o2[1] : o2[0] - o1[0]);
+             Arrays.sort(people, new Comparator<int[]>() {
+                     @Override
+                     public int compare(int[] o1, int[] o2) {
+                         return o1[0] == o2[0] ? o1[1] - o2[1] : o2[0] - o1[0];
+                     }
+                 });
+             List<int[]> res = new LinkedList<>();
+             for (int[] i : people) {
+                 res.add(i[1], i);
+             }
+             return res.toArray(new int[people.length][2]);
+         }
+     }
+   #+end_src 
+* 407 接雨水 II                                                  :UNRESOLVED:
+  #+begin_src java :classname 
+    class Solution {
+        public int trapRainWater(int[][] heightMap) {
+
+        }
+    }
+  #+end_src 
+* 412 Fizz Buzz
+  #+begin_src java :classname 
+    class Solution {
+        public List<String> fizzBuzz(int n) {
+            List<String> res = new LinkedList<>();
+            for (int i = 1; i <= n; i++) {
+                switch (helper(i)) {
+                case 0:
+                    res.add("FizzBuzz");
+                    break;
+                case 1:
+                    res.add("Fizz");
+                    break;
+                case 2:
+                    res.add("Buzz");
+                    break;
+                case 3:
+                    res.add(String.valueOf(i));
+                    break;
+                }
+            }
+            return res;
+        }
+
+        private int helper(int n) {
+            if (n % 3 == 0 && n % 5 == 0) return 0;
+            else if (n % 3 == 0) return 1;
+            else if (n % 5 == 0) return 2;
+            else return 3;
+        }
+    }
+  #+end_src 
+* 416 分割等和子集
+** DP
+   - 二维
+     #+begin_src java :classname 
+       class Solution {
+           public boolean canPartition(int[] nums) {
+               int len = nums.length;
+               if (len == 0) return false;
+               int sum = 0;
+               for (int num : nums) sum += num;
+               if ((sum&1) == 1) return false;
+               int target = sum >> 1;
+               boolean[][] res = new boolean[len][target+1];
+               res[0][0] = true;
+               if (nums[0] == target) res[0][nums[0]] = true;
+               for (int i = 1; i < len; i++) {
+                   for (int j = 1; j <= target; j++) {
+                       res[i][j] = res[i-1][j];
+                       if (nums[i] <= j) res[i][j] = res[i][j] || res[i-1][j-nums[i]];
+                       if (res[i][target]) return true;
+                   }
+               }
+               return res[len-1][target];
+           }
+       }
+     #+end_src
+   - 一维(空间优化，倒序遍历)
+     #+begin_src java :classname 
+       class Solution {
+           public boolean canPartition(int[] nums) {
+               int len = nums.length;
+               if (len == 0) return false;
+               int sum = 0;
+               for (int num : nums) sum += num;
+               if ((sum&1) == 1) return false;
+               int target = sum >> 1;
+               boolean[] res = new boolean[target+1];
+               res[0] = true;
+               if (nums[0] == target) res[nums[0]] = true;
+               for (int i = 1; i < len; i++) {
+                   for (int j = target; j >= nums[i]; j--) {
+                       if (res[target]) return true;
+                       res[j] = res[j] || res[j-nums[i]];
+                   }
+               }
+               return res[target];
+           }
+       }
+     #+end_src 
+** 递归                                                          :UNRESOLVED:
+   - 两路递归
+     #+begin_src java :classname 
+       class Solution {
+           private int target = 0;
+           public boolean canPartition(int[] nums) {
+               int len = nums.length;
+               if (len == 0) return false;
+               int sum = 0;
+               for (int num : nums) sum += num;
+               if ((sum&1) == 1) return false;
+               target = sum >> 1;
+               return helper(nums, len-1, 0, 0);
+           }
+
+           private boolean helper(int[] nums, int index, int left, int right) {
+               if (left == target || right == target) return true;
+               if (left > target || right > target) return false;
+               boolean res = helper(nums, index-1, left+nums[index], right);
+               if (res) return true;
+               res = helper(nums, index-1, left, right+nums[index]);
+               return res;
+           }
+       }
+     #+end_src
+   - 回溯
+     #+begin_src java :classname 
+       class Solution {
+           public boolean canPartition(int[] nums) {
+               int len = nums.length;
+               if (len == 0) return false;
+               int sum = 0;
+               for (int num : nums) sum += num;
+               if ((sum&1) == 1) return false;
+               target = sum >> 1;
+               return helper(nums, len-1, 0, 0);
+           }
+
+           private boolean helper(int[] nums, )
+       }
+     #+end_src
+* 437 路径总和3 [[file:~/csnds/Dropbox/orglife/offer.org::<<elink28>>][offer26]]                          :回溯:递归:前缀和:二叉树:树:
+** 双重递归
+*** 暴力
+    #+begin_src java :classname 
+      class Solution {
+          public int pathSum(TreeNode root, int sum) {
+              if (root == null) return 0;
+              return helper(root, sum) + pathSum(root.left, sum) + pathSum(root.right, sum);
+          }
+
+          private int helper(TreeNode root, int sum) {
+              if (root == null) return 0;
+              int count = 0;
+              sum -= root.val;
+              if (sum == 0) count += 1;
+              count += helper(root.left, sum);
+              count += helper(root.right, sum);
+              return count;
+          }
+      }
+    #+end_src 
+*** 前缀和 <<ilink4>>
+    #+begin_src java :classname 
+      class Solution {
+          public int pathSum(TreeNode root, int sum) {
+              if (root == null) return 0;
+              Map<Integer, Integer> prefix = new HashMap<>();
+              prefix.put(0, 1);
+              return helper(root, sum, prefix, 0);
+          }
+
+          private int helper(TreeNode root, int sum, Map<Integer, Integer> prefix, int currSum) {
+              if (root == null) return 0;
+              currSum += root.val;
+              int count = 0;
+              count += prefix.getOrDefault(currSum-sum, 0);
+              int pre = prefix.getOrDefault(currSum, 0);
+              prefix.put(currSum, pre+1);
+              count += helper(root.left, sum, prefix, currSum);
+              count += helper(root.right, sum, prefix, currSum);
+              prefix.put(currSum, pre);
+              return count;
+          }
+      }
+    #+end_src 
+* 438 找到字符串中所有字母异位词                     :滑动窗口:双指针:字符串:
+** 滑动窗口
+   #+begin_src java :classname 
+     class Solution {
+         public List<Integer> findAnagrams(String s, String p) {
+             List<Integer> res = new ArrayList<>();
+             if (s == null || p == null || s.length() < p.length()) return res;
+             char[] chs = s.toCharArray(), chp = p.toCharArray();
+             int left = 0, right = 0;
+             int[] needs = new int[26];
+             int[] window = new int[26];
+             for (char ch : chp) {
+                 needs[ch-'a']++;
+             }
+             while (right < chs.length) {
+                 int curR = chs[right] - 'a';
+                 window[curR]++;
+                 right++;
+                 while (window[curR] > needs[curR]) {
+                     window[chs[left]-'a']--;
+                     left++;
+                 }
+                 if (right-left == chp.length) res.add(left);
+             }
+             return res;
+         }
+     }
+   #+end_src 
+* 448 找到所有数组中消失的数字                                    :查找:数组:
+  #+begin_src java :classname 
+    class Solution {
+        public List<Integer> findDisappearedNumbers(int[] nums) {
+            List<Integer> res = new ArrayList<>();
+            for (int i = 0; i < nums.length; i++) {
+                int cur = Math.abs(nums[i]) - 1;
+                if (nums[cur] < 0) continue;
+                nums[cur] = -nums[cur];
+            }
+            for (int i = 0; i < nums.length; i++) {
+                if (nums[i] > 0) res.add(i+1);
+            }
+            return res;
+        }
+    }
+  #+end_src 
+* 454 四数相加 II
+  #+begin_src java :classname 
+    class Solution {
+        public int fourSumCount(int[] A, int[] B, int[] C, int[] D) {
+
+        }
+    }
+  #+end_src 
+* 461 汉明距离                                                       :位运算:
+  #+begin_src java :classname 
+    class Solution {
+        public int hammingDistance(int x, int y) {
+            int dis = 0;
+            while (x != 0 || y != 0) {
+                dis += (x&1) ^ (y&1);
+                x >>= 1;
+                y >>= 1;
+            }
+            return dis;
+        }
+    }
+  #+end_src 
+
+* 494 目标和
+** DP
+*** 转化为背包思路
+    - 二维
+      #+begin_src java :classname 
+        class Solution {
+            public int findTargetSumWays(int[] nums, int S) {
+                int sum = 0, len = nums.length;
+                for (int num : nums) sum += num;
+                if (sum < S || ((sum+S)&1) == 1) return 0;
+                int p = (sum+S) >> 1;
+                int[][] dp = new int[len+1][p+1];
+                dp[0][0] = 1;
+                for (int i = 1; i <= len; i++) {
+                    for (int j = 0; j <= p; j++) {
+                        dp[i][j] = dp[i-1][j];
+                        if (j >= nums[i-1]) dp[i][j] += dp[i-1][j-nums[i-1]];
+                    }
+                }
+                return dp[len][p];
+            }
+        }
+      #+end_src
+    - 一维
+      #+begin_src java :classname 
+        class Solution {
+            public int findTargetSumWays(int[] nums, int S) {
+                int sum = 0, len = nums.length;
+                for (int num : nums) sum += num;
+                if (sum < S || ((sum+S)&1) == 1) return 0;
+                int p = (sum+S) >> 1;
+                int[] dp = new int[p+1];
+                dp[0] = 1;
+                for (int num : nums) {
+                    for (int i = p; i >= num; i--) {
+                        dp[i] += dp[i-num];
+                    }
+                }
+                return dp[p];
+            }
+        }
+      #+end_src
+*** DFS思路                                                      :UNRESOLVED:
+    #+begin_src java :classname 
+      class Solution {
+          public static int findTargetSumWays(int[] nums, int s) {
+              int sum = 0;
+              for (int i = 0; i < nums.length; i++) {
+                  sum += nums[i];
+              }
+              // 绝对值范围超过了sum的绝对值范围则无法得到
+              if (Math.abs(s) > Math.abs(sum)) return 0;
+
+              int len = nums.length;
+              // - 0 +
+              int t = sum * 2 + 1;
+              int[][] dp = new int[len][t];
+              // 初始化
+              if (nums[0] == 0) {
+                  dp[0][sum] = 2;
+              } else {
+                  dp[0][sum + nums[0]] = 1;
+                  dp[0][sum - nums[0]] = 1;
+              }
+
+              for (int i = 1; i < len; i++) {
+                  for (int j = 0; j < t; j++) {
+                      // 边界
+                      int l = (j - nums[i]) >= 0 ? j - nums[i] : 0;
+                      int r = (j + nums[i]) < t ? j + nums[i] : 0;
+                      dp[i][j] = dp[i - 1][l] + dp[i - 1][r];
+                  }
+              }
+              return dp[len - 1][sum + s];
+          }
+      }
+    #+end_src 
+** DFS
+   #+begin_src java :classname 
+     class Solution {
+         public int findTargetSumWays(int[] nums, int S) {
+             return helper(nums, 0, S);
+         }
+
+         private int helper(int[] nums, int start, int S) {
+             if (start == nums.length) {
+                 return S == 0 ? 1 : 0;
+             }
+             return helper(nums, start+1, S+nums[start]) + helper(nums, start+1, S-nums[start]);
+         }
+     }
+   #+end_src
+*** Question:                                                     :QUESTIONS:
+    - [ ] 怎么记忆化or优化剪枝?
 * 516 最长回文子序列                                       :DP:子序列:字符串:
   #+begin_src java :classname 
     class Solution {
@@ -2415,9 +5207,350 @@
         }
     }
   #+end_src 
+* 538 把二叉搜索树转换为累加树              :递归:中序遍历:二叉搜索树:二叉树:
+** 中序遍历
+*** 递归
+    #+begin_src java :classname 
+      class Solution {
+          private int sum = 0;
+          public TreeNode convertBST(TreeNode root) {
+              helper(root);
+              return root;
+          }
+
+          private void helper(TreeNode root) {
+              if (root == null) return;
+              helper(root.right);
+              root.val += sum;
+              sum = root.val;
+              helper(root.left);
+          }
+      }
+    #+end_src 
+*** 迭代
+    #+begin_src java :classname 
+      class Solution {
+          private int sum = 0;
+          public TreeNode convertBST(TreeNode root) {
+              if (root == null) return root;
+              Stack<TreeNode> st = new Stack();
+              TreeNode cur = root;
+              int sum = 0;
+              while (!st.empty() || cur != null) {
+                  if (cur != null) {
+                      st.push(cur);
+                      cur = cur.right;
+                  } else {
+                      cur = st.pop();
+                      cur.val += sum;
+                      sum = cur.val;
+                      cur = cur.left;
+                  }
+              }
+              return root;
+          }
+      }
+    #+end_src 
+* 543 二叉树的直径  [[file:~/csnds/Dropbox/orglife/offer.org::<<elink13>>][offer55]]                                     :递归:二叉树:
+** 递归
+*** 前序更新(自顶而下 双重重复递归)
+    #+begin_src java :classname 
+      class Solution {
+          public int diameterOfBinaryTree(TreeNode root) {
+              if (root == null) return 0;
+              return max(maxDepth(root.left) + maxDepth(root.right), diameterOfBinaryTree(root.left), diameterOfBinaryTree(root.right));
+          }
+
+          private int maxDepth(TreeNode root) {
+              if (root == null) return 0;
+              int left = maxDepth(root.left), right = maxDepth(root.right);
+              return left > right ? left+1 : right+1;
+          }
+
+          private int max(int x, int y, int z) {
+              int max = x > y ? x : y;
+              return max > z ? max : z;
+          }
+      }
+    #+end_src 
+*** 后序更新(自底而上)]
+    #+begin_src java :classname 
+      class Solution {
+          private int diameter = 0;
+          public int diameterOfBinaryTree(TreeNode root) {
+              depth(root);
+              return diameter;
+          }
+
+          private int depth(TreeNode root) {
+              if (root == null) return 0;
+              int left = depth(root.left), right = depth(root.right);
+              diameter = diameter > left+right ? diameter : left+right;
+              return left > right ? left+1 : right+1;
+          }
+      }
+    #+end_src 
+* 560 和为K的子数组                                             :前缀和:数组:
+** 暴力
+   #+begin_src java :classname 
+     public class Solution {
+         public int subarraySum(int[] nums, int k) {
+             int count = 0;
+             for (int start = 0; start < nums.length; start++) {
+                 int sum = 0;
+                 for (int end = start; end < nums.length; end++) {
+                     sum += nums[end];
+                     if (sum == k) {
+                         count++;
+                     }
+                 }
+             }
+             return count;
+         }
+     }
+   #+end_src 
+** 前缀和+哈希优化 [[ilink4][437 路径总和3]]
+   #+begin_src java :classname 
+     public class Solution {
+         public int subarraySum(int[] nums, int k) {
+             int res = 0, preSum = 0;
+             Map<Integer, Integer> map = new HashMap();
+             map.put(0, 1);
+             for (int num : nums) {
+                 preSum += num;
+                 if (map.containsKey(preSum-k)) {
+                     res += map.get(preSum-k);
+                 }
+                 map.put(preSum, map.getOrDefault(preSum, 0)+1);
+             }
+             return res;
+         }
+     }
+   #+end_src 
+* 581 最短无序连续子数组                                        :双指针:数组:
+  #+begin_src java :classname 
+    class Solution {
+        public int findUnsortedSubarray(int[] nums) {
+            int len = nums.length;
+            int left = len-1, right = 0;
+            int max = nums[right], min = nums[left];
+            for (int i = 0; i < len; i++) {
+                if (max <= nums[i]) max = nums[i];
+                else right = i;
+                if (min >= nums[len-1-i]) min = nums[len-1-i];
+                else left = len-1-i;
+            }
+            return right > left ? right-left+1 : 0;
+        }
+    }
+  #+end_src 
+* 617 合并二叉树                                             :递归:二叉树:树:
+  #+begin_src java :classname 
+    class Solution {
+        public TreeNode mergeTrees(TreeNode t1, TreeNode t2) {
+            if (t1 == null) return t2;
+            if (t2 == null) return t1;
+            t1.val += t2.val;
+            t1.left = mergeTrees(t1.left, t2.left);
+            t1.right = mergeTrees(t1.right, t2.right);
+            return t1;
+        }
+    }
+  #+end_src 
+* 621 任务调度器                                                  :排序:数组:
+** 设计
+   - 根据是否剩余判断
+     #+begin_src java :classname 
+       class Solution {
+           public int leastInterval(char[] tasks, int n) {
+               int[] map = new int[26];
+               for (char ch : tasks) map[ch-'A']++;
+               Arrays.sort(map);
+               int max_slots = map[25]-1, res_slots = max_slots*n;
+               for (int i = 24; i >= 0 && map[i] > 0; i--) res_slots -= Math.min(map[i], max_slots);
+               return res_slots > 0 ? res_slots+tasks.length : tasks.length;
+           }
+       }
+     #+end_src
+   - 直接根据最小长度与任务总数判断
+     #+begin_src java :classname 
+       class Solution {
+           public int leastInterval(char[] tasks, int n) {
+               int[] map = new int[26];
+               for (char ch : tasks) map[ch-'A']++;
+               Arrays.sort(map);
+               int max = map[25], least = (max-1)*(n+1) + 1;
+               int i = 24;
+               while (i >= 0 && map[i] == max) {
+                   least++;
+                   i--;
+               }
+               return Math.max(least, tasks.length);
+           }
+       }
+     #+end_src 
+** 排序                                                          :UNRESOLVED:
+   #+begin_src java :classname 
+     class Solution {
+         public int leastInterval(char[] tasks, int n) {
+             int[] map = new int[26];
+             for (char ch : tasks) map[ch-'A']++;
+             Arrays.sort(map);
+             int time = 0;
+             while (map[25] > 0) {
+                 int i = 0;
+                 while (i <= n) {
+                     if (map[25] == 0) break;
+                     if (i < 26 && map[25-i] > 0) map[25-i]--;
+                     time++;
+                     i++;
+                 }
+                 Arrays.sort(map);
+             }
+             return time;
+         }
+     }
+   #+end_src
 * 637 二叉树的层平均值                                           :UNRESOLVED:
 *** DFS
 *** BFS
+* 647 回文子串                           :DP:扩展窗口:双指针:中心扩展:字符串:
+** 中心扩展 [[ilink5][5 最长回文子串]]
+   #+begin_src java :classname 
+     class Solution {
+         private int count = 0;
+         public int countSubstrings(String s) {
+             char[] chs = s.toCharArray();
+             for (int i = 0; i < chs.length; i++) {
+                 expand(chs, i, i);
+                 expand(chs, i, i+1);
+             }
+             return count;
+         }
+
+         public void expand(char[] chs, int left, int right) {
+             while (left >= 0 && right < chs.length) {
+                 if (chs[left] != chs[right]) break;
+                 left--;
+                 right++;
+                 count++;
+             }
+         }
+     }
+   #+end_src 
+** DP
+   #+begin_src java :classname 
+     class Solution {
+         private int count = 0;
+         public int countSubstrings(String s) {
+             int len = s.length();
+             boolean[][] dp = new boolean[len][len];
+             int res = 0;
+             for (int j = 0; j < len; j++) {
+                 for (int i = 0; i <=j; i++) {
+                     if (s.charAt(i) == s.charAt(j)) {
+                         if (j-i <= 1 || dp[i+1][j-1]) {
+                             res++;
+                             dp[i][j] = true;
+                         }
+                     }
+                 }
+             }
+             return res;
+         }
+     }
+   #+end_src 
+** 马拉车                                                        :UNRESOLVED:
+   #+begin_src java :classname 
+     class Solution {
+         public int countSubstrings(String S) {
+             char[] A = new char[2 * S.length() + 3];
+             A[0] = '@';
+             A[1] = '#';
+             A[A.length - 1] = '$';
+             int t = 2;
+             for (char c: S.toCharArray()) {
+                 A[t++] = c;
+                 A[t++] = '#';
+             }
+
+             int[] Z = new int[A.length];
+             int center = 0, right = 0;
+             for (int i = 1; i < Z.length - 1; ++i) {
+                 if (i < right)
+                     Z[i] = Math.min(right - i, Z[2 * center - i]);
+                 while (A[i + Z[i] + 1] == A[i - Z[i] - 1])
+                     Z[i]++;
+                 if (i + Z[i] > right) {
+                     center = i;
+                     right = i + Z[i];
+                 }
+             }
+             int ans = 0;
+             for (int v: Z) ans += (v + 1) / 2;
+             return ans;
+         }
+     }
+   #+end_src 
+* 739 每日温度                                               :单调栈:栈:数组:
+** 暴力优化
+   - 理解错误(离最高温的天数)
+     #+begin_src java :classname 
+       class Solution {
+           public int[] dailyTemperatures(int[] T) {
+               int[] res = new int[T.length];
+               int maxT = Integer.MIN_VALUE, index = res.length-1;
+               for (int i = res.length-1; i >= 0; i--) {
+                   if (T[i] >= maxT) {
+                       maxT = T[i];
+                       res[i] = 0;
+                       index = i;
+                   } else {
+                       res[i] = index-i;
+                   }
+               }
+               return res;
+           }
+       }
+     #+end_src
+   - 从后向前遍历
+     #+begin_src java :classname 
+       class Solution {
+           public int[] dailyTemperatures(int[] T) {
+               int len = T.length;
+               int[] res = new int[len];
+               for (int i = len-2; i >= 0; i--) {
+                   for (int j = i+1; j < len; j += res[j]) {
+                       if (T[j] > T[i]) {
+                           res[i] = j - i;
+                           break;
+                       }
+                       if (res[j] == 0) {
+                           res[i] = 0;
+                           break;
+                       }
+                   }
+               }
+               return res;
+           }
+       }
+     #+end_src
+** 单调栈
+   #+begin_src java :classname 
+     class Solution {
+         public int[] dailyTemperatures(int[] T) {
+             int[] res = new int[T.length];
+             Deque<Integer> st = new LinkedList<>();
+             for (int i = 0; i < res.length; i++) {
+                 while (!st.isEmpty() && T[st.peek()] < T[i]) {
+                     res[st.peek()] = i - st.pop();
+                 }
+                 st.push(i);
+             }
+             return res;
+         }
+     }
+   #+end_src 
 * 673 最长递增子序列的个数                            :线段树:DP:子序列:数组:
 ** DP
    #+begin_src java :classname 
@@ -2472,11 +5605,24 @@
         }
     }
   #+end_src 
-* 765 情侣牵手                                                   :UNRESOLVED:
+* 765 情侣牵手                                                    :贪婪:数组:
   #+begin_src java :classname 
     class Solution {
         public int minSwapsCouples(int[] row) {
-
+            int len = row.length, res = 0;
+            int[] map = new int[len];
+            for (int i = 0; i < len; i++) map[row[i]] = i;
+            for (int i = 0; i < len; i += 2) {
+                int x = row[i] ^ 1;
+                if (x == row[i+1]) continue;
+                res += 1;
+                int j = map[x];
+                row[j] = row[i+1];
+                row[i+1] = x;
+                map[x] = i+1;
+                map[row[j]] = j;
+            }
+            return res;
         }
     }
   #+end_src 
@@ -2735,7 +5881,6 @@
     #+end_src
 ** 583 1035
   
-
 
 * 面试题
 ** 阿里
